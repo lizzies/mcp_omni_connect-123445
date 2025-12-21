@@ -759,6 +759,7 @@ class BaseReactAgent:
                 f"Tool call validation failed for: {combined_tool_name} "
                 f"args={combined_tool_args} -> {obs_text}"
             )
+
             # Populate tools_results for validation errors
             for single_tool in tool_errors:
                 tools_results.append({
@@ -811,6 +812,7 @@ class BaseReactAgent:
             )
             session_state.messages.append(Message(role="assistant", content=response))
 
+            tools_results = []
             try:
                 async with asyncio.timeout(self.tool_call_timeout):
                     metadata = {
@@ -923,7 +925,7 @@ class BaseReactAgent:
                         obs_text,
                     )
 
-                # Populate tools_results for error
+                # Populate tools_results for timeout
                 for single_tool in tool_call_result:
                     tools_results.append({
                         "tool_name": getattr(single_tool, "tool_name", "unknown"),
@@ -966,7 +968,7 @@ class BaseReactAgent:
                         obs_text,
                     )
 
-                # Populate tools_results for error
+                # Populate tools_results for generic exceptions
                 for single_tool in tool_call_result:
                     tools_results.append({
                         "tool_name": getattr(single_tool, "tool_name", "unknown"),
