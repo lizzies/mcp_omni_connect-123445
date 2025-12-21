@@ -1,6 +1,5 @@
 
 
-
 sub_agents_additional_prompt = """
 <extension name="sub_agents_extension">
   <description>
