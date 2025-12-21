@@ -48,7 +48,7 @@
 - [💾 Memory Tool Backend](#5--memory-tool-backend)
 - [🚁 Background Agents](#6--background-agents)
 - [🔄 Workflow Agents](#7--workflow-agents)
-- [🧠 Semantic Tool Knowledge Base](#8--semantic-tool-knowledge-base)
+- [🧠 Advanced Tool Use](#8--advanced-tool-use)
 - [📊 Production Observability](#9--production-observability)
 - [🌐 Universal Model Support](#10--universal-model-support)
 - [🔌 Built-in MCP Client](#11--built-in-mcp-client)
@@ -67,12 +67,6 @@
 - [📖 Documentation](#-documentation)
 - [🌟 Why OmniCoreAgent?](#-why-omnicoreagent)
 
-### 🔌 **MCP Client (CLI Tool - Backward Compatibility)**
-- [🖥️ MCP Client CLI Commands](#-mcp-client-cli-commands)
-- [🚦 Transport Types & Authentication](#-transport-types--authentication)
-- [💬 Prompt Management](#-prompt-management)
-- [🎯 Operation Modes](#-operation-modes)
-- [📊 Token & Usage Management](#-token--usage-management)
 
 ---
 
@@ -86,7 +80,6 @@
 
 Building production-ready AI agents was challenging:
 - ❌ **Complex Setup**: Requires integrating multiple libraries (LLM, memory, tools, orchestration)
-- ❌ **No Built-in Memory**: Manual memory management across conversations
 - ❌ **Difficult Orchestration**: Complex code to coordinate multiple agents
 - ❌ **No Production Infrastructure**: Missing monitoring, observability, error handling
 - ❌ **Vendor Lock-in**: Hard to switch between AI providers
@@ -96,8 +89,8 @@ Building production-ready AI agents was challenging:
 
 Build production-ready agents in minutes:
 - ✅ **Simple API**: `OmniAgent(...)` and you're done
-- ✅ **Built-in Memory**: Redis, PostgreSQL, MongoDB, SQLite with vector database support—**switch at runtime!**
-- ✅ **Plug & Play**: Switch memory and event backends at runtime (Redis ↔ MongoDB ↔ PostgreSQL ↔ in-memory)
+- ✅ **Built-in Persistance storage**: Redis, PostgreSQL, Mysql, MongoDB, SQLite—**switch at runtime!**
+- ✅ **Plug & Play**: Switch memory and event backends at runtime (Redis ↔ MongoDB ↔ PostgreSQL ↔ Mysql ↔ SQLite ↔ in-memory)
 - ✅ **Workflow Orchestration**: Sequential, Parallel, and Router agents out of the box
 - ✅ **Production-Ready**: Monitoring, observability, error handling built-in
 - ✅ **Model Agnostic**: Switch between OpenAI, Anthropic, Groq, Ollama, and 100+ models
@@ -110,7 +103,7 @@ OmniCoreAgent is designed for **production applications**, not experiments. It's
 ### Key Differentiators
 
 - **🏗️ Complete Agent Framework**: Full framework with built-in infrastructure—not just a library
-- **🧠 Multi-Tier Memory System**: In-memory, Redis, PostgreSQL, MySQL, SQLite, MongoDB with vector database support—**switch at runtime!**
+- **🧠 Multi-Tier Memory System**: In-memory, Redis, PostgreSQL, MySQL, SQLite, MongoDB—**switch at runtime!**
 - **📡 Real-Time Event System**: Event router with in-memory and Redis Streams backends—**switch at runtime!**
 - **🛠️ Local Tools System**: Register any Python function as an AI tool with simple decorators
 - **🚁 Background Agents**: Autonomous task execution with intelligent scheduling
@@ -227,8 +220,7 @@ OmniCoreAgent Framework
 │   ├── RedisMemoryStore (Production Persistence)
 │   ├── DatabaseMemory (PostgreSQL/MySQL/SQLite)
 │   ├── MongoDBMemory (Document Storage)
-│   ├── Vector Database Integration (Qdrant/ChromaDB/MongoDB Atlas)
-│   └── Memory Management (Episodic, Long-term, Working Memory)
+│   └── Memory Management (Working Memory)
 │
 ├── 📡 Event System
 │   ├── InMemoryEventStore (Development)
@@ -238,7 +230,7 @@ OmniCoreAgent Framework
 ├── 🛠️ Tool System
 │   ├── Local Tools Registry (Python Functions)
 │   ├── MCP Tools Integration (Built-in Client)
-│   ├── Semantic Tool Knowledge Base
+│   ├── Advance Tool Use
 │   └── Memory Tool Backend (Persistent Working Memory)
 │
 ├── 🚁 Background Agent System
@@ -275,8 +267,6 @@ Understanding key terms helps you get the most out of OmniCoreAgent:
 - **Session**: A single conversation with your agent. Sessions help maintain context and separate different user interactions.
 
 - **MCP (Model Context Protocol)**: A standard protocol for connecting AI agents to external tools and services. OmniCoreAgent has built-in MCP client support.
-
-- **Vector Database**: A special database that stores information in a way that allows semantic search (finding information by meaning, not exact text). Used for long-term memory.
 
 - **Background Agent**: An agent that runs automatically on a schedule, without human interaction. Perfect for monitoring, periodic tasks, or automation.
 
@@ -355,7 +345,7 @@ agent = OmniAgent(
         "max_steps": 15,
         "tool_call_timeout": 30,
         "memory_results_limit": 5,
-        "enable_tools_knowledge_base": True,
+        "enable_advanced_tool_use": True,
         "memory_tool_backend": "local"
     }
 )
@@ -394,13 +384,11 @@ agent_config = {
         "mode": "sliding_window",       # or "token_budget"
         "value": 10000                  # Window size or token limit
     },
-    "memory_results_limit": 5,          # Memory retrieval limit (1-100)
-    "memory_similarity_threshold": 0.5,  # Similarity threshold (0.0-1.0)
     
-    # Tool Knowledge Base
-    "enable_tools_knowledge_base": True,  # Semantic tool retrieval
-    "tools_results_limit": 10,           # Max tools per query
-    "tools_similarity_threshold": 0.1,    # Tool similarity threshold
+    
+    # Advanced Tool Use
+    "enable_advanced_tool_use": True,  # Enable advanced tool use
+    
     
     # Memory Tool Backend for filesystem persistance storage
     "memory_tool_backend": "local"       # "local", or None
@@ -486,76 +474,14 @@ memory.set_memory_config(mode="sliding_window", value=100)
 memory.set_memory_config(mode="token_budget", value=5000)
 ```
 
-#### Vector Database Integration
-
-Enable semantic search and long-term memory:
-
-```bash
-# .env
-ENABLE_VECTOR_DB=true
-OMNI_MEMORY_PROVIDER=qdrant-remote  # or chroma-remote, mongodb-remote
-QDRANT_HOST=localhost
-QDRANT_PORT=6333
-EMBEDDING_API_KEY=your_embedding_key  # REQUIRED when ENABLE_VECTOR_DB=true
-```
-
-**Supported Providers:**
-
-1. **Qdrant Remote** (Recommended)
-   ```bash
-   # Install and run Qdrant
-   docker run -p 6333:6333 qdrant/qdrant
-   
-   # Configure
-   ENABLE_VECTOR_DB=true
-   OMNI_MEMORY_PROVIDER=qdrant-remote
-   QDRANT_HOST=localhost
-   QDRANT_PORT=6333
-   ```
-
-2. **ChromaDB Remote**
-   ```bash
-   # Install and run ChromaDB server
-   docker run -p 8000:8000 chromadb/chroma
-   
-   # Configure
-   ENABLE_VECTOR_DB=true
-   OMNI_MEMORY_PROVIDER=chroma-remote
-   CHROMA_HOST=localhost
-   CHROMA_PORT=8000
-   ```
-
-3. **ChromaDB Cloud**
-   ```bash
-   ENABLE_VECTOR_DB=true
-   OMNI_MEMORY_PROVIDER=chroma-cloud
-   CHROMA_TENANT=your_tenant
-   CHROMA_DATABASE=your_database
-   CHROMA_API_KEY=your_api_key
-   ```
-
-4. **MongoDB Atlas**
-   ```bash
-   ENABLE_VECTOR_DB=true
-   OMNI_MEMORY_PROVIDER=mongodb-remote
-   MONGODB_URI="your_mongodb_connection_string"
-   MONGODB_DB_NAME="db name"
-   ```
 
 **Memory Types:**
-- **Episodic Memory**: Conversation history with semantic search
-- **Long-term Memory**: Persistent knowledge storage
 - **Working Memory**: Active task state (via Memory Tool Backend)
 
 **What You Get:**
 - **Long-term Memory**: Persistent storage across sessions
-- **Episodic Memory**: Context-aware conversation history
-- **Semantic Search**: Find relevant information by meaning, not exact text
 - **Multi-session Context**: Remember information across different conversations
 - **Automatic Summarization**: Intelligent memory compression for efficiency
-
-- **Embedding API key is REQUIRED** when `ENABLE_VECTOR_DB=true`
-- **Dimensions parameter is mandatory** in embedding configuration
 
 ---
 
@@ -870,7 +796,7 @@ result = await router.run(task="Find and summarize recent AI research")
 
 ---
 
-### 8. 🧠 Semantic Tool Knowledge Base
+### 8. 🧠 Advanced Tool Use
 
 Automatically discover and retrieve relevant tools using semantic search. **The Problem**: When you have hundreds of tools, manually selecting which ones to use is impossible. **The Solution**: OmniCoreAgent automatically finds the right tools based on what the agent needs to do.
 
@@ -888,14 +814,11 @@ tools = [tool1, tool2, tool3]  # Limited selection
 # ✅ Scales to unlimited tools
 # ✅ Context-aware selection
 agent_config = {
-    "enable_tools_knowledge_base": True,
-    "tools_results_limit": 10,
-    "tools_similarity_threshold": 0.1
+    "enable_advanced_tool_use": True,
+    
 }
 
-# All MCP tools are automatically embedded into vector DB
-# Agent uses semantic search to find relevant tools
-# Falls back to keyword (BM25) search if needed
+
 ```
 
 **How It Works:**
@@ -935,7 +858,7 @@ agent_config = {
 Once configured, OmniCoreAgent automatically tracks:
 - **🔥 LLM Call Performance**: Execution time, token usage, response quality
 - **🛠️ Tool Execution Traces**: Which tools were used and how long they took
-- **🧠 Memory Operations**: Vector DB queries, memory retrieval performance
+- **🧠 Memory Operations**: memory retrieval performance
 - **🤖 Agent Workflow**: Complete trace of multi-step agent reasoning
 - **📊 System Bottlenecks**: Identify exactly where time is spent
 
@@ -1105,37 +1028,6 @@ model_config = {
 - **Consistency**: Same agent logic works across all providers
 - **Future-Proof**: New models automatically supported through LiteLLM
 
-### Embedding Support
-
-OmniCoreAgent supports multiple embedding providers for vector database operations:
-
-```bash
-# .env
-EMBEDDING_API_KEY=your_key  # Works with OpenAI, Cohere, HuggingFace, Mistral, Voyage, etc.
-```
-
-**Supported Embedding Providers:**
-- **OpenAI**: `text-embedding-3-small`, `text-embedding-3-large`, `text-embedding-ada-002`
-- **Cohere**: `embed-english-v3.0`, `embed-multilingual-v3.0`
-- **HuggingFace**: Various models via HuggingFace API
-- **Mistral**: `mistral-embed`
-- **Voyage**: `voyage-large-2`, `voyage-code-2`
-- **Azure OpenAI**: Azure-hosted OpenAI embeddings
-- **Google**: Vertex AI embeddings
-
-**Embedding Configuration:**
-```python
-embedding_config = {
-    "provider": "openai",              # Provider name
-    "model": "text-embedding-3-small",  # Model name
-    "dimensions": 1536,                 # REQUIRED: Vector dimensions
-    "encoding_format": "float",         # Encoding format
-    "timeout": 30                       # Optional timeout
-}
-```
-
-**Important**: When `ENABLE_VECTOR_DB=true`, embedding configuration is **REQUIRED**. The `dimensions` parameter is mandatory for vector database index creation.
-
 ---
 
 ### 11. 🔌 Built-in MCP Client
@@ -1243,65 +1135,7 @@ await agent.connect_mcp_servers()
 
 **Note**: For standalone MCP client usage (CLI tool), see the [MCP Client CLI](#-mcp-client-cli-commands) section at the end of this document.
 
----
 
-## 🚀 Advanced Features
-
-### Advanced MCP Server Management
-
-For dynamic server management and advanced MCP client features, see the [MCP Client CLI](#-mcp-client-cli-commands) section below. The built-in MCP client in OmniAgent (documented in [Core Features - Built-in MCP Client](#11--built-in-mcp-client)) handles most use cases, while the CLI provides additional capabilities for:
-
-- Dynamic server addition/removal at runtime
-- Interactive MCP server management
-- Advanced prompt and resource management
-- Standalone MCP client usage
-
-### Dynamic Server Configuration (CLI)
-
-#### Add New Servers
-
-```bash
-# Add one or more servers from a configuration file
-/add_servers:path/to/config.json
-```
-
-The configuration file can include multiple servers with different authentication methods:
-
-```json
-{
-  "new-server": {
-    "transport_type": "streamable_http",
-    "auth": {
-      "method": "oauth"
-    },
-    "url": "http://localhost:8000/mcp"
-  },
-  "another-server": {
-    "transport_type": "sse",
-    "headers": {
-      "Authorization": "Bearer token"
-    },
-    "url": "http://localhost:3000/sse"
-  }
-}
-```
-
-#### Remove Servers
-
-```bash
-# Remove a server by its name
-/remove_server:server_name
-```
-
-#### Programmatic Configuration
-
-```python
-# Add servers at runtime
-await client.add_servers("path/to/config.json")
-
-# Remove servers
-await client.remove_server("server_name")
-```
 
 ---
 
@@ -1317,7 +1151,6 @@ await client.remove_server("server_name")
 - **Redis**: For persistent memory and events (`memory_store_type="redis"`, `event_store_type="redis_stream"`)
 - **PostgreSQL/MySQL**: For database memory (`memory_store_type="database"`)
 - **MongoDB**: For document storage (`memory_store_type="mongodb"`)
-- **Qdrant/ChromaDB**: For vector database (semantic search and long-term memory)
 - **Opik**: For tracing and observability (production monitoring)
 
 ### Installation
@@ -1342,41 +1175,6 @@ LLM_API_KEY=your_openai_api_key_here
 # LLM_API_KEY=your_groq_api_key_here
 # LLM_API_KEY=your_azure_openai_api_key_here
 
-# ===============================================
-# OPTIONAL: Embeddings (For Vector Database)
-# ===============================================
-# REQUIRED when ENABLE_VECTOR_DB=true
-EMBEDDING_API_KEY=your_embedding_api_key_here
-# Works with OpenAI, Cohere, HuggingFace, Mistral, Voyage, etc.
-
-# ===============================================
-# OPTIONAL: Vector Database (Smart Memory)
-# ===============================================
-# ⚠️ Warning: 30-60s startup time for sentence transformer
-# ⚠️ IMPORTANT: You MUST choose a provider - no local fallback
-ENABLE_VECTOR_DB=true  # Default: false
-
-# Choose ONE provider (required if ENABLE_VECTOR_DB=true):
-# Option 1: Qdrant Remote (RECOMMENDED)
-OMNI_MEMORY_PROVIDER=qdrant-remote
-QDRANT_HOST=localhost
-QDRANT_PORT=6333
-
-# Option 2: ChromaDB Remote
-# OMNI_MEMORY_PROVIDER=chroma-remote
-# CHROMA_HOST=localhost
-# CHROMA_PORT=8000
-
-# Option 3: ChromaDB Cloud
-# OMNI_MEMORY_PROVIDER=chroma-cloud
-# CHROMA_TENANT=your_tenant
-# CHROMA_DATABASE=your_database
-# CHROMA_API_KEY=your_api_key
-
-# Option 4: MongoDB Atlas
-# OMNI_MEMORY_PROVIDER=mongodb-remote
-# MONGODB_URI="your_mongodb_connection_string"
-# MONGODB_DB_NAME="db name"
 
 # ===============================================
 # OPTIONAL: Persistent Memory Storage
@@ -1512,7 +1310,7 @@ agent = OmniAgent(
     event_router=events,
     agent_config={
         "max_steps": 20,
-        "enable_tools_knowledge_base": True,
+        "enable_advanced_tool_use": True,
         "memory_tool_backend": "local",
         "memory_results_limit": 10
     }
@@ -1536,8 +1334,6 @@ python examples/cli/basic.py
 # Complete OmniAgent demo - All features showcase
 python examples/cli/run_omni_agent.py
 
-# Advanced MCP CLI
-python examples/cli/run_mcp.py
 ```
 
 #### Custom Agents
@@ -1625,13 +1421,10 @@ agent_config = {
     
     # Memory
     "memory_config": {"mode": "sliding_window", "value": 10000},
-    "memory_results_limit": 5,
-    "memory_similarity_threshold": 0.5,
     
     # Tools
-    "enable_tools_knowledge_base": True,
-    "tools_results_limit": 10,
-    "tools_similarity_threshold": 0.1,
+    "enable_advanced_tool_use": True,
+    
     
     # Memory Tool
     "memory_tool_backend": "local"  # or "s3", "db", None
@@ -1724,11 +1517,7 @@ mcp_tools = [
     "max_steps": 15,
     "request_limit": 0,
     "total_tokens_limit": 0,
-    "memory_results_limit": 5,
-    "memory_similarity_threshold": 0.5,
-    "enable_tools_knowledge_base": true,
-    "tools_results_limit": 10,
-    "tools_similarity_threshold": 0.1,
+    "enable_advanced_tool_use": true,
     "memory_tool_backend": "local"
   },
   "LLM": {
@@ -1738,12 +1527,6 @@ mcp_tools = [
     "max_tokens": 2000,
     "max_context_length": 30000,
     "top_p": 0.95
-  },
-  "Embedding": {
-    "provider": "openai",
-    "model": "text-embedding-3-small",
-    "dimensions": 1536,
-    "encoding_format": "float"
   },
   "mcpServers": {
     "filesystem": {
@@ -1965,11 +1748,10 @@ tests/
 | `Error: Invalid API key` | Check your `.env` file: `LLM_API_KEY=your_actual_key` |
 | `ModuleNotFoundError: omnicoreagent` | Run: `uv add omnicoreagent` or `pip install omnicoreagent` |
 | `Connection refused` | Ensure MCP server is running before connecting |
-| `ChromaDB not available` | Install: `pip install chromadb` - [See Vector DB Setup](#-vector-database-integration) |
+
 | `Redis connection failed` | Install Redis or use in-memory mode (default) |
 | `Tool execution failed` | Check tool permissions and arguments |
-| `Vector database connection failed` | Check `ENABLE_VECTOR_DB` and provider settings in `.env` |
-| `Embedding configuration required` | Set `EMBEDDING_API_KEY` and configure `embedding_config` when using vector DB |
+
 
 ### Detailed Issues and Solutions
 
@@ -2023,19 +1805,6 @@ Error: Tool execution failed
 - Review tool arguments for correctness
 - Check tool timeout settings in `agent_config`
 
-#### 5. Vector Database Issues
-
-```bash
-Error: Vector database connection failed
-```
-
-**Solutions:**
-- Ensure chosen provider (Qdrant, ChromaDB, MongoDB) is running
-- Check connection settings in `.env`
-- Verify API keys for cloud providers
-- Ensure `ENABLE_VECTOR_DB=true` is set
-- Verify `EMBEDDING_API_KEY` is set when using vector DB
-- **See [Vector Database Setup](#-vector-database-integration) for detailed configuration**
 
 #### 6. Import Errors
 
@@ -2217,330 +1986,6 @@ And all the amazing open-source projects that make OmniCoreAgent possible!
 
 ---
 
-## 🔌 MCP Client CLI (Backward Compatibility)
-
-> **Note**: The MCP Client CLI is available for backward compatibility and standalone MCP server management. For building AI agents, use **OmniAgent** (documented above). The MCP client functionality is also integrated into OmniAgent via the `mcp_tools` parameter.
-
-### 🖥️ MCP Client CLI Commands
-
-When using the standalone MCP client CLI (via `python examples/cli/run_mcp.py`), you have access to powerful interactive commands:
-
-#### Memory Store Management
-
-```bash
-# Switch between memory backends
-/memory_store:in_memory                    # Fast in-memory storage (default)
-/memory_store:redis                        # Redis persistent storage  
-/memory_store:database                     # SQLite database storage
-/memory_store:database:postgresql://user:pass@host/db  # PostgreSQL
-/memory_store:database:mysql://user:pass@host/db       # MySQL
-/memory_store:mongodb                      # MongoDB persistent storage
-/memory_store:mongodb:your_mongodb_connection_string   # MongoDB with custom URI
-
-# Memory strategy configuration
-/memory_mode:sliding_window:10             # Keep last 10 messages
-/memory_mode:token_budget:5000             # Keep under 5000 tokens
-```
-
-#### Event Store Management
-
-```bash
-# Switch between event backends
-/event_store:in_memory                     # Fast in-memory events (default)
-/event_store:redis_stream                  # Redis Streams for persistence
-```
-
-#### Core MCP Operations
-
-```bash
-/tools                                    # List all available tools
-/prompts                                  # List all available prompts  
-/resources                               # List all available resources
-/prompt:<name>                           # Execute a specific prompt
-/resource:<uri>                          # Read a specific resource
-/subscribe:<uri>                         # Subscribe to resource updates
-/query <your_question>                   # Ask questions using tools
-```
-
-#### Enhanced Commands
-
-```bash
-# Memory operations
-/history                                   # Show conversation history
-/clear_history                            # Clear conversation history
-/save_history <file>                      # Save history to file
-/load_history <file>                      # Load history from file
-
-# Server management
-/add_servers:<config.json>                # Add servers from config
-/remove_server:<server_name>              # Remove specific server
-/refresh                                  # Refresh server capabilities
-
-# Agentic modes
-/mode:auto                              # Switch to autonomous agentic mode
-/mode:orchestrator                      # Switch to multi-server orchestration
-/mode:chat                              # Switch to interactive chat mode
-
-# Debugging and monitoring
-/debug                                    # Toggle debug mode
-/api_stats                               # Show API usage statistics
-```
-
----
-
-### 🚦 Transport Types & Authentication
-
-The MCP Client supports multiple transport protocols for connecting to MCP servers:
-
-#### 1. **stdio** - Direct Process Communication
-
-**Use when**: Connecting to local MCP servers that run as separate processes
-
-```json
-{
-  "server-name": {
-    "transport_type": "stdio",
-    "command": "uvx",
-    "args": ["mcp-server-package"]
-  }
-}
-```
-
-- **No authentication needed**
-- **No OAuth server started**
-- Most common for local development
-
-#### 2. **sse** - Server-Sent Events
-
-**Use when**: Connecting to HTTP-based MCP servers using Server-Sent Events
-
-```json
-{
-  "server-name": {
-    "transport_type": "sse",
-    "url": "http://your-server.com:4010/sse",
-    "headers": {
-      "Authorization": "Bearer your-token"
-    },
-    "timeout": 60,
-    "sse_read_timeout": 120
-  }
-}
-```
-
-- **Uses Bearer token or custom headers**
-- **No OAuth server started**
-
-#### 3. **streamable_http** - HTTP with Optional OAuth
-
-**Use when**: Connecting to HTTP-based MCP servers with or without OAuth
-
-**Without OAuth (Bearer Token):**
-```json
-{
-  "server-name": {
-    "transport_type": "streamable_http",
-    "url": "http://your-server.com:4010/mcp",
-    "headers": {
-      "Authorization": "Bearer your-token"
-    },
-    "timeout": 60
-  }
-}
-```
-
-- **Uses Bearer token or custom headers**
-- **No OAuth server started**
-
-**With OAuth:**
-```json
-{
-  "server-name": {
-    "transport_type": "streamable_http",
-    "auth": {
-      "method": "oauth"
-    },
-    "url": "http://your-server.com:4010/mcp"
-  }
-}
-```
-
-- **OAuth callback server automatically starts on `http://localhost:3000`**
-- **This is hardcoded and cannot be changed**
-- **Required for OAuth flow to work properly**
-
-#### 🔐 OAuth Server Behavior
-
-**Important**: When using OAuth authentication, the MCP Client automatically starts an OAuth callback server.
-
-**What You'll See:**
-```
-🖥️  Started callback server on http://localhost:3000
-```
-
-**Key Points:**
-- **This is normal behavior** - not an error
-- **The address `http://localhost:3000` is hardcoded** and cannot be changed
-- **The server only starts when** you have `"auth": {"method": "oauth"}` in your config
-- **The server stops** when the application shuts down
-- **Only used for OAuth token handling** - no other purpose
-
-**When OAuth is NOT Used:**
-- Remove the entire `"auth"` section from your server configuration
-- Use `"headers"` with `"Authorization": "Bearer token"` instead
-- No OAuth server will start
-
----
-
-### 💬 Prompt Management
-
-The MCP Client provides advanced prompt handling with flexible argument parsing:
-
-#### Basic Prompt Usage
-
-```bash
-# List all available prompts
-/prompts
-
-# Basic prompt usage
-/prompt:weather/location=tokyo
-
-# Prompt with multiple arguments
-/prompt:travel-planner/from=london/to=paris/date=2024-03-25
-```
-
-#### JSON Format for Complex Arguments
-
-```bash
-# JSON format for complex arguments
-/prompt:analyze-data/{
-    "dataset": "sales_2024",
-    "metrics": ["revenue", "growth"],
-    "filters": {
-        "region": "europe",
-        "period": "q1"
-    }
-}
-
-# Nested argument structures
-/prompt:market-research/target=smartphones/criteria={
-    "price_range": {"min": 500, "max": 1000},
-    "features": ["5G", "wireless-charging"],
-    "markets": ["US", "EU", "Asia"]
-}
-```
-
-#### Advanced Prompt Features
-
-- **Argument Validation**: Automatic type checking and validation
-- **Default Values**: Smart handling of optional arguments
-- **Context Awareness**: Prompts can access previous conversation context
-- **Cross-Server Execution**: Seamless execution across multiple MCP servers
-- **Error Handling**: Graceful handling of invalid arguments with helpful messages
-- **Dynamic Help**: Detailed usage information for each prompt
-
----
-
-### 🎯 Operation Modes
-
-The MCP Client supports three distinct operation modes for different use cases:
-
-#### Chat Mode (Default)
-
-**Characteristics:**
-- Requires explicit approval for tool execution
-- Interactive conversation style
-- Step-by-step task execution
-- Detailed explanations of actions
-- Best for: Learning, debugging, controlled execution
-
-**Usage:**
-```bash
-/mode:chat
-```
-
-#### Autonomous Mode
-
-**Characteristics:**
-- Independent task execution
-- Self-guided decision making
-- Automatic tool selection and chaining
-- Progress updates and final results
-- Complex task decomposition
-- Error handling and recovery
-- Best for: Production automation, batch processing
-
-**Usage:**
-```bash
-/mode:auto
-```
-
-#### Orchestrator Mode
-
-**Characteristics:**
-- Advanced planning for complex multi-step tasks
-- Strategic delegation across multiple MCP servers
-- Intelligent agent coordination and communication
-- Parallel task execution when possible
-- Dynamic resource allocation
-- Sophisticated workflow management
-- Real-time progress monitoring across agents
-- Adaptive task prioritization
-- Best for: Complex multi-server workflows, enterprise automation
-
-**Usage:**
-```bash
-/mode:orchestrator
-```
-
----
-
-### 📊 Token & Usage Management
-
-The MCP Client provides advanced controls and visibility over your API usage and resource limits.
-
-#### View API Usage Stats
-
-Use the `/api_stats` command to see your current usage:
-
-```bash
-/api_stats
-```
-
-This displays:
-- **Total tokens used**
-- **Total requests made**
-- **Total response tokens**
-- **Number of requests**
-
-#### Set Usage Limits
-
-You can set limits to automatically stop execution when thresholds are reached:
-
-- **Total Request Limit**: Set the maximum number of requests allowed in a session
-- **Total Token Usage Limit**: Set the maximum number of tokens that can be used
-- **Tool Call Timeout**: Set the maximum time (in seconds) a tool call can take before being terminated
-- **Max Steps**: Set the maximum number of steps the agent can take before stopping
-
-**Configuration:**
-```json
-{
-  "AgentConfig": {
-    "tool_call_timeout": 30,                // Tool call timeout in seconds
-    "max_steps": 15,                        // Max number of reasoning/tool steps
-    "request_limit": 0,                     // 0 = unlimited, set > 0 to enable limits
-    "total_tokens_limit": 0,                // 0 = unlimited, set > 0 for hard cap on tokens
-    "memory_results_limit": 5,              // Number of memory results to retrieve (1-100)
-    "memory_similarity_threshold": 0.5,     // Similarity threshold for memory filtering (0.0-1.0)
-    "enable_tools_knowledge_base": false,   // Enable semantic tool retrieval
-    "tools_results_limit": 10,              // Max number of tools to retrieve
-    "tools_similarity_threshold": 0.1,      // Similarity threshold for tool retrieval
-    "memory_tool_backend": "None"           // Backend for memory tool: "None", "local", "s3", or "db"
-  }
-}
-```
-
-**Note**: When any of these limits are reached, the agent will automatically stop running and notify you.
 
 ---
 

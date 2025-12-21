@@ -13,9 +13,7 @@ class ReactAgent(BaseReactAgent):
             tool_call_timeout=config.tool_call_timeout,
             request_limit=config.request_limit,
             total_tokens_limit=config.total_tokens_limit,
-            enable_tools_knowledge_base=config.enable_tools_knowledge_base,
-            tools_results_limit=config.tools_results_limit,
-            tools_similarity_threshold=config.tools_similarity_threshold,
+            enable_advanced_tool_use=config.enable_advanced_tool_use,
             memory_tool_backend=config.memory_tool_backend,
         )
 
