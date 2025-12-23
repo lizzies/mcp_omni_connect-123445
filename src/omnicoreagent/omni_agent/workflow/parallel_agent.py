@@ -47,7 +47,6 @@ class ParallelAgent:
         for idx, agent_service in enumerate(self.sub_agents, start=1):
             agent_name = getattr(agent_service, "name", f"Agent_{idx}")
             task = (agent_tasks or {}).get(agent_name) or self.DEFAULT_TASK
-            # convert task to query
             query = task
             tasks.append(
                 asyncio.create_task(
@@ -68,7 +67,6 @@ class ParallelAgent:
 
         while retry_count < self.max_retries:
             try:
-                # Run the agent (shield prevents cancellation from breaking cleanup)
                 final_output = await asyncio.shield(
                     agent_service.run(query=query, session_id=session_id)
                 )

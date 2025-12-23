@@ -1,4 +1,3 @@
-# types.py
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
@@ -19,13 +18,16 @@ class AgentConfig(BaseModel):
         default=False, description="enable_advanced_tool_use"
     )
 
-    # --- Memory Retrieval Config ---
     memory_config: dict = {"mode": "sliding_window", "value": 10000}
 
-    # --- Memory Tool Backend ---
     memory_tool_backend: str | None = Field(
         default=None,
         description="Backend for memory tool. Options: 'local', 's3', 'db'",
+    )
+
+    enable_agent_skills: bool = Field(
+        default=False,
+        description="Enable Agent Skills feature for specialized capabilities",
     )
 
     @field_validator("memory_tool_backend")
@@ -103,7 +105,7 @@ class ParsedResponse(BaseModel):
 
 
 class ToolCallResult(BaseModel):
-    tool_executor: Any  # ToolExecutor instance
+    tool_executor: Any
     tool_name: str
     tool_args: dict
 
@@ -139,7 +141,7 @@ class ToolRegistryEntry(BaseModel):
 
 
 class ToolExecutorConfig(BaseModel):
-    handler: Any  # ToolExecutor instance
+    handler: Any
     tool_data: dict[str, Any]
     available_tools: dict[str, Any]
 
@@ -152,6 +154,6 @@ class LoopDetectorConfig(BaseModel):
 class SessionState(BaseModel):
     messages: list[Message]
     state: AgentState
-    loop_detector: Any  # RobustLoopDetector instance
+    loop_detector: Any
     assistant_with_tool_calls: dict | None
     pending_tool_responses: list[dict]

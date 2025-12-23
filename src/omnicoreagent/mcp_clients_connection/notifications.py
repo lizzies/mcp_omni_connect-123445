@@ -28,7 +28,6 @@ async def handle_notifications(
             async for message in sessions[server_name]["session"].incoming_messages:
                 logger.debug(f"Received notification from {server_name}: {message}")
 
-                # Common refresh function for capability changes
                 async def refresh_capabilities_task():
                     try:
                         logger.info(f"Starting capability refresh for {server_name}")
@@ -44,14 +43,12 @@ async def handle_notifications(
                         logger.info(
                             f"Successfully refreshed capabilities after notification from {server_name}"
                         )
-                        # Force flush logs
                         for handler in logger.handlers:
                             handler.flush()
                     except Exception as e:
                         logger.error(
                             f"Failed to refresh capabilities after notification from {server_name}: {str(e)}"
                         )
-                        # Force flush logs
                         for handler in logger.handlers:
                             handler.flush()
 
@@ -61,9 +58,7 @@ async def handle_notifications(
                             logger.info(
                                 f"Resource updated: {params.uri} from {server_name}"
                             )
-                            # Create and track the task
                             task = asyncio.create_task(refresh_capabilities_task())
-                            # Add a callback to log completion
                             task.add_done_callback(
                                 lambda t: logger.debug(
                                     f"Capability refresh task completed for {server_name}"
@@ -123,6 +118,5 @@ async def handle_notifications(
     except Exception as e:
         logger.error(f"Fatal error in notification handler: {str(e)}")
     finally:
-        # Force flush logs at the end of the handler
         for handler in logger.handlers:
             handler.flush()

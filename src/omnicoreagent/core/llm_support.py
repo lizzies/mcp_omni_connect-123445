@@ -4,7 +4,6 @@ from typing import Any
 class LLMToolSupport:
     """Class to handle LLM tool support checking"""
 
-    # Define model tool support mapping
     MODEL_TOOL_SUPPORT = {
         "openai": {
             "provider": "openai",
@@ -53,14 +52,11 @@ class LLMToolSupport:
         model = llm_config.get("model", "")
         model_provider = llm_config.get("provider", "").lower()
 
-        # Check if provider supports tools
         for provider_info in cls.MODEL_TOOL_SUPPORT.values():
             if provider_info["provider"] in model_provider:
                 if provider_info["models"] is None:
-                    # Provider supports tools for all models
                     return True
                 else:
-                    # Check if specific model is supported
                     return any(
                         supported_model in model
                         for supported_model in provider_info["models"]

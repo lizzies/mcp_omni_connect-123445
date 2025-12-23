@@ -39,7 +39,7 @@ class RedisConnectionManager:
                     self._client = redis.from_url(
                         REDIS_URL,
                         decode_responses=True,
-                        max_connections=20,  # Connection pool size
+                        max_connections=20,
                         retry_on_timeout=True,
                         socket_timeout=5,
                         socket_connect_timeout=5,
@@ -77,7 +77,6 @@ class RedisConnectionManager:
                 logger.debug("[RedisManager] Closed all Redis connections")
 
 
-# Global Redis connection manager
 _redis_manager = None
 
 
@@ -108,11 +107,9 @@ class RedisMemoryStore(AbstractMemoryStore):
             self.memory_config: dict[str, Any] = {}
             return
 
-        # Set the global REDIS_URL for the connection manager
         global REDIS_URL
         REDIS_URL = redis_url
 
-        # Use connection manager for production
         self._connection_manager = get_redis_manager()
         self._redis_client = None
         self.memory_config: dict[str, Any] = {}
@@ -163,16 +160,16 @@ class RedisMemoryStore(AbstractMemoryStore):
 
             key = f"omnicoreagent_memory:{session_id}"
 
-            dt = datetime.now(timezone.utc)  # timezone-aware UTC
+            dt = datetime.now(timezone.utc)
             timestamp_iso = dt.isoformat()
-            timestamp_score = dt.timestamp()  # float (epoch seconds)
+            timestamp_score = dt.timestamp()
 
             message = {
                 "role": role,
                 "content": str(content),
                 "session_id": session_id,
                 "msg_metadata": metadata,
-                "timestamp": timestamp_iso,  # keep ISO in the payload
+                "timestamp": timestamp_iso,
             }
 
             await client.zadd(key, {json.dumps(message): timestamp_score})
@@ -201,18 +198,15 @@ class RedisMemoryStore(AbstractMemoryStore):
             client = await self._get_client()
             key = f"omnicoreagent_memory:{session_id}"
 
-            # Get all messages for the session
             raw_messages = await client.zrange(key, 0, -1)
 
             if not raw_messages:
                 return []
 
-            # Parse and filter messages
             result = []
             for msg_json in raw_messages:
                 try:
                     msg = json.loads(msg_json)
-                    # Filter by agent name if specified (at parsing level for efficiency)
                     if (
                         agent_name
                         and msg.get("msg_metadata", {}).get("agent_name") != agent_name
@@ -223,7 +217,6 @@ class RedisMemoryStore(AbstractMemoryStore):
                     logger.warning(f"Failed to parse message JSON: {msg_json}")
                     continue
 
-            # Apply memory configuration
             mode = self.memory_config.get("mode", "token_budget")
             value = self.memory_config.get("value")
 

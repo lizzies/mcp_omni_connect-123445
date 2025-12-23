@@ -135,7 +135,6 @@ class RouterAgent:
             elif hasattr(response, "message"):
                 response = response.message.content.strip()
 
-            # now append the agent name and response as its capabilities
             self.agent_registry[agent_name] = response
         except Exception as e:
             logger.info(f"error occurs during agent registry process: {str(e)}")

@@ -22,7 +22,6 @@ class EventRouter:
         self.event_store_type = event_store_type
         self._event_store: Optional[BaseEventStore] = None
 
-        # Initialize the event store
         self._initialize_event_store()
 
     def __str__(self):

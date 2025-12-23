@@ -10,7 +10,7 @@ import asyncio
 import json
 
 
-from omnicoreagent.core.constants import MCP_TOOLS_REGISTRY
+from omnicoreagent.core.constants import TOOLS_REGISTRY
 import math
 import re
 from collections import Counter, defaultdict
@@ -158,8 +158,7 @@ class ToolRetriever:
         if not query or not isinstance(query, str):
             return []
 
-        # Use the in-memory registry
-        stored_tools = MCP_TOOLS_REGISTRY
+        stored_tools = TOOLS_REGISTRY
         if not stored_tools or not isinstance(stored_tools, dict):
             return []
 
@@ -168,7 +167,6 @@ class ToolRetriever:
             return []
 
         try:
-            # Flatten all tool dicts from the stored tools
             all_tools = list(stored_tools.values())
 
             documents = [self._prepare_tool_document(tool=tool) for tool in all_tools]
@@ -195,7 +193,6 @@ class ToolRetriever:
                 results.append(
                     {
                         "mcp_server_name": doc.mcp_server_name,
-                        # "score": round(score, 4),
                         "raw_tool": {
                             "name": doc.tool_name,
                             "description": doc.tool_description,
@@ -216,63 +213,90 @@ class ToolRetriever:
 
 
 class AdvanceToolsUse:
-    """Manages MCP tools using in-memory registry and BM25 retrieval."""
+    """Manages MCP and local tools using in-memory registry and BM25 retrieval."""
 
-    async def load_and_process_tools(self, mcp_tools: Dict[str, List[Any]]):
+    def load_and_process_tools(
+        self, mcp_tools: Dict[str, List[Any]] = None, local_tools: Any = None
+    ):
         """
         Load all tools from MCP servers into the in-memory registry.
         This overwrites any existing tools in MCP_TOOLS_REGISTRY.
         """
         logger.info("Starting tool load and process...")
-        MCP_TOOLS_REGISTRY.clear()  # Clear existing tools as requested
+        TOOLS_REGISTRY.clear()
+        if mcp_tools:
+            for server_name, tools in mcp_tools.items():
+                logger.info(f"[{server_name}] Processing {len(tools)} tools")
+                for tool in tools:
+                    try:
+                        name = getattr(tool, "name", None) or tool.get("name")
+                        name = str(name)
+                        description = (
+                            getattr(tool, "description", None)
+                            or tool.get("description")
+                            or ""
+                        )
+                        input_schema = (
+                            getattr(tool, "inputSchema", None)
+                            or tool.get("inputSchema")
+                            or {}
+                        )
+                        args = (
+                            input_schema.get("properties", {})
+                            if isinstance(input_schema, dict)
+                            else {}
+                        )
 
-        for server_name, tools in mcp_tools.items():
-            logger.info(f"[{server_name}] Processing {len(tools)} tools")
-            for tool in tools:
-                try:
-                    # Handle dict or object tool
-                    name = getattr(tool, "name", None) or tool.get("name")
-                    name = str(name)
-                    description = (
-                        getattr(tool, "description", None)
-                        or tool.get("description")
-                        or ""
-                    )
-                    input_schema = (
-                        getattr(tool, "inputSchema", None)
-                        or tool.get("inputSchema")
-                        or {}
-                    )
-                    args = (
-                        input_schema.get("properties", {})
-                        if isinstance(input_schema, dict)
-                        else {}
-                    )
+                        tool_payload = {
+                            "name": name,
+                            "description": str(description),
+                            "parameters": args,
+                        }
 
-                    tool_payload = {
-                        "name": name,
-                        "description": str(description),
-                        "parameters": args,
-                    }
+                        enriched = f"{name} {description} {json.dumps(args)}"
 
-                    # Create enriched string for BM25
-                    enriched = f"{name} {description} {json.dumps(args)}"
+                        document = {
+                            "mcp_server_name": server_name,
+                            "raw_tool": tool_payload,
+                            "enriched_tool": normalize_enriched_tool(enriched=enriched),
+                        }
 
-                    document = {
-                        "mcp_server_name": server_name,
-                        "raw_tool": tool_payload,
-                        "enriched_tool": normalize_enriched_tool(enriched=enriched),
-                    }
+                        TOOLS_REGISTRY[name] = document
 
-                    # Insert into registry
-                    MCP_TOOLS_REGISTRY[name] = document
+                    except Exception as exc:
+                        logger.error(
+                            f"[{server_name}] Error processing tool {getattr(tool, 'name', None)}: {exc}"
+                        )
 
-                except Exception as exc:
-                    logger.error(
-                        f"[{server_name}] Error processing tool {getattr(tool, 'name', None)}: {exc}"
-                    )
+        if local_tools:
+            local_tools_list = local_tools.get_available_tools()
+            if local_tools_list:
+                for tool in local_tools_list:
+                    if isinstance(tool, dict):
+                        name = tool.get("name", "unknown")
+                        description = (
+                            tool.get("description", "").replace("\n", " ").strip()
+                        )
+                        input_schema = tool.get("inputSchema", {})
+                        args = input_schema.get("properties", {})
 
-        logger.info(f"Loaded {len(MCP_TOOLS_REGISTRY)} tools into registry.")
+                        tool_payload = {
+                            "name": name,
+                            "description": str(description),
+                            "parameters": args,
+                        }
+
+                        enriched = f"{name} {description} {json.dumps(args)}"
+
+                        document = {
+                            "mcp_server_name": "local_tools",
+                            "raw_tool": tool_payload,
+                            "enriched_tool": normalize_enriched_tool(enriched=enriched),
+                        }
+
+                        TOOLS_REGISTRY[name] = document
+
+        logger.info(f"Loaded {len(TOOLS_REGISTRY)} tools into registry.")
 
     async def tools_retrieval(self, query: str):
         """

@@ -2,7 +2,6 @@
 APScheduler backend for background task scheduling.
 """
 
-# from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 from apscheduler.triggers.interval import IntervalTrigger
@@ -34,10 +33,8 @@ class APSchedulerBackend(BackgroundTaskScheduler):
             raise ValueError("task_fn must be an async function for AsyncIOScheduler")
         try:
             if isinstance(interval, int):
-                # Use interval trigger
                 trigger = IntervalTrigger(seconds=interval)
             elif isinstance(interval, str):
-                # Use cron trigger
                 trigger = CronTrigger.from_crontab(interval)
             else:
                 raise ValueError(f"Invalid interval type: {type(interval)}")
@@ -48,8 +45,8 @@ class APSchedulerBackend(BackgroundTaskScheduler):
                 id=agent_id,
                 replace_existing=True,
                 kwargs=kwargs,
-                max_instances=1,  # Prevent multiple instances of same job
-                coalesce=True,  # Combine missed executions
+                max_instances=1,
+                coalesce=True,
             )
             logger.info(
                 f"Scheduled task for agent {agent_id} with interval: {interval}"

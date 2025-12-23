@@ -37,15 +37,12 @@ class BackgroundAgentManager:
         self.memory_router = memory_router or MemoryRouter(memory_store_type="memory")
         self.event_router = event_router or EventRouter(event_store_type="memory")
 
-        # Core components
         self.task_registry = TaskRegistry()
         self.scheduler = APSchedulerBackend()
 
-        # Agent storage
         self.agents: Dict[str, BackgroundOmniAgent] = {}
         self.agent_configs: Dict[str, Dict[str, Any]] = {}
 
-        # Manager state
         self.is_running = False
         self.created_at = datetime.now()
 
@@ -69,46 +66,38 @@ class BackgroundAgentManager:
             if agent_id in self.agents:
                 raise ValueError(f"Agent with ID {agent_id} already exists")
 
-            # Extract task_config from agent config and register it
             task_config = config.pop("task_config", None)
             if not task_config:
                 raise ValueError(f"task_config is required for agent {agent_id}")
 
-            # Register task in TaskRegistry
             self.task_registry.register(agent_id, task_config)
             logger.info(f"Registered task in TaskRegistry for agent {agent_id}")
 
-            # Create the background agent with TaskRegistry
             agent = BackgroundOmniAgent(
                 config=config,
                 memory_router=self.memory_router,
                 event_router=self.event_router,
-                task_registry=self.task_registry,  # Pass TaskRegistry to agent
+                task_registry=self.task_registry,
             )
             mcp_tools = config.get("mcp_tools", False)
             if mcp_tools:
                 await agent.connect_mcp_servers()
 
-            # Store agent and config
             self.agents[agent_id] = agent
             self.agent_configs[agent_id] = config.copy()
 
-            # Auto-start manager if not running and schedule the agent
             if not self.is_running:
                 logger.info(
                     "Auto-starting BackgroundAgentManager for immediate scheduling"
                 )
                 await self.start()
 
-            # Register task in scheduler (now manager is guaranteed to be running)
             await self._schedule_agent(agent_id, agent)
 
-            # Get event streaming information using agent's method
             event_stream_info = agent.get_event_stream_info()
 
             logger.info(f"Created background agent: {agent_id}")
 
-            # Return comprehensive information for event streaming setup
             return {
                 "agent_id": agent_id,
                 "session_id": agent.get_session_id(),
@@ -135,13 +124,10 @@ class BackgroundAgentManager:
             True if task was registered successfully
         """
         try:
-            # Register in TaskRegistry
             self.task_registry.register(agent_id, task_config)
 
-            # Update agent if it exists
             if agent_id in self.agents:
                 self.agents[agent_id]
-                # The agent will automatically pick up the new task from TaskRegistry
                 logger.info(f"Updated task for existing agent {agent_id}")
 
             logger.info(f"Registered task for agent {agent_id}")
@@ -162,10 +148,8 @@ class BackgroundAgentManager:
         try:
             self.task_registry.update(agent_id, task_config)
 
-            # Update agent if it exists
             if agent_id in self.agents:
                 self.agents[agent_id]
-                # The agent will automatically pick up the updated task from TaskRegistry
                 logger.info(f"Updated task for agent {agent_id}")
 
             return True
@@ -211,10 +195,8 @@ class BackgroundAgentManager:
                 logger.warning("Manager is already running")
                 return
 
-            # Start the scheduler
             self.scheduler.start()
 
-            # Schedule all existing agents
             for agent_id, agent in self.agents.items():
                 await self._schedule_agent(agent_id, agent)
 
@@ -232,10 +214,8 @@ class BackgroundAgentManager:
                 logger.warning("Manager is not running")
                 return
 
-            # Shutdown scheduler
             self.scheduler.shutdown()
 
-            # Cleanup agents
             for agent_id, agent in self.agents.items():
                 try:
                     asyncio.create_task(agent.cleanup())
@@ -258,7 +238,6 @@ class BackgroundAgentManager:
         agent = self.agents[agent_id]
         status = agent.get_status()
 
-        # Add manager-specific information
         status.update(
             {
                 "manager_running": self.is_running,
@@ -339,11 +318,9 @@ class BackgroundAgentManager:
             raise ValueError(f"Agent {agent_id} not found")
 
         try:
-            # Remove scheduled task if any
             if self.scheduler.is_task_scheduled(agent_id):
                 self.scheduler.remove_task(agent_id)
 
-            # Trigger agent cleanup (non-blocking)
             agent = self.agents[agent_id]
             asyncio.create_task(agent.cleanup())
             logger.info(f"Stopped agent {agent_id}")
@@ -362,8 +339,6 @@ class BackgroundAgentManager:
                 self.start()
 
             agent = self.agents[agent_id]
-            # Re-schedule the agent explicitly
-            # Remove any previous schedule to avoid duplication
             if self.scheduler.is_task_scheduled(agent_id):
                 self.scheduler.remove_task(agent_id)
             await self._schedule_agent(agent_id, agent)
@@ -382,10 +357,8 @@ class BackgroundAgentManager:
             agent = self.agents[agent_id]
             await agent.update_config(new_config)
 
-            # Update stored config
             self.agent_configs[agent_id].update(new_config)
 
-            # Re-schedule if manager is running
             if self.is_running:
                 self.scheduler.remove_task(agent_id)
                 await self._schedule_agent(agent_id, agent)
@@ -402,19 +375,15 @@ class BackgroundAgentManager:
             raise ValueError(f"Agent {agent_id} not found")
 
         try:
-            # Remove from scheduler
             if self.is_running:
                 self.scheduler.remove_task(agent_id)
 
-            # Remove from TaskRegistry
             if self.task_registry.exists(agent_id):
                 self.task_registry.remove(agent_id)
 
-            # Cleanup agent
             agent = self.agents[agent_id]
             asyncio.create_task(agent.cleanup())
 
-            # Remove from storage
             del self.agents[agent_id]
             del self.agent_configs[agent_id]
 

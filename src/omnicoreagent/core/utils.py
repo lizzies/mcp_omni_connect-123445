@@ -24,25 +24,20 @@ import ast
 import inspect
 
 console = Console()
-# Configure logging
 logger = logging.getLogger("omnicoreagent")
 logger.setLevel(logging.INFO)
 
 
-# Remove any existing handlers
 for handler in logger.handlers[:]:
     logger.removeHandler(handler)
 
-# Create console handler with immediate flush
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.INFO)
 
-# Create file handler with immediate flush
 log_file = Path("omnicoreagent.log")
 file_handler = logging.FileHandler(log_file, mode="a")
 file_handler.setLevel(logging.INFO)
 
-# Create formatters
 console_formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
@@ -53,15 +48,12 @@ file_formatter = logging.Formatter(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-# Set formatters
 console_handler.setFormatter(console_formatter)
 file_handler.setFormatter(file_formatter)
 
-# Add handlers
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
-# Configure handlers to flush immediately
 console_handler.flush = sys.stdout.flush
 file_handler.flush = lambda: file_handler.stream.flush()
 import asyncio
@@ -78,7 +70,6 @@ class BackgroundTaskManager:
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.tasks = set()
 
-    # Fire-and-forget for SYNC functions
     def run_background(self, func: Callable[..., Any], *args, **kwargs):
         """
         Run a synchronous function in a background thread (fire-and-forget).
@@ -93,7 +84,6 @@ class BackgroundTaskManager:
 
         asyncio.create_task(asyncio.to_thread(wrapper))
 
-    # Fire-and-forget for lightweight ASYNC functions
     def run_background_async(self, coro: Coroutine):
         """
         Run an async coroutine in the same event loop (fire-and-forget).
@@ -108,7 +98,6 @@ class BackgroundTaskManager:
 
         asyncio.create_task(runner())
 
-    # Strict isolation for DB or heavy async functions
     def run_background_strict(self, coro):
         """Fire and forget a coroutine safely, with internal error handling."""
         if asyncio.iscoroutine(coro):
@@ -127,7 +116,6 @@ class BackgroundTaskManager:
         except Exception as e:
             logger.exception(f"Background task failed: {e}")
 
-    # Run blocking function and await its result
     def run_in_executor(
         self, func: Callable[..., Any], *args, **kwargs
     ) -> asyncio.Task:
@@ -142,29 +130,22 @@ class BackgroundTaskManager:
 def clean_json_response(json_response):
     """Clean and extract JSON from the response."""
     try:
-        # First try to parse as is
         json.loads(json_response)
         return json_response
     except json.JSONDecodeError:
-        # If that fails, try to extract JSON
         try:
-            # Remove any markdown code blocks
             if "```" in json_response:
-                # Extract content between first ``` and last ```
                 start = json_response.find("```") + 3
                 end = json_response.rfind("```")
-                # Skip the "json" if it's present after first ```
                 if json_response[start : start + 4].lower() == "json":
                     start += 4
                 json_response = json_response[start:end].strip()
 
-            # Find the first { and last }
             start = json_response.find("{")
             end = json_response.rfind("}") + 1
             if start >= 0 and end > start:
                 json_response = json_response[start:end]
 
-            # Validate the extracted JSON
             json.loads(json_response)
             return json_response
         except (json.JSONDecodeError, ValueError) as e:
@@ -207,9 +188,7 @@ class RobustLoopDetector:
         self.consecutive_threshold = max(1, consecutive_threshold)
         self.pattern_detection = pattern_detection
         self.max_pattern_length = max(1, max_pattern_length)
-        self.pattern_repetition_threshold = max(
-            4, pattern_repetition_threshold
-        )  # At least 4 repetitions
+        self.pattern_repetition_threshold = max(4, pattern_repetition_threshold)
 
         self._last_signature = None
         self._consecutive_count = 0
@@ -219,7 +198,6 @@ class RobustLoopDetector:
         self, tool_name: str, tool_input: str, tool_output: str
     ) -> None:
         """Record a new tool call interaction."""
-        # handle None or empty values
         tool_name = tool_name or "unknown_tool"
         tool_input = tool_input if tool_input is not None else ""
         tool_output = tool_output if tool_output is not None else ""
@@ -230,11 +208,9 @@ class RobustLoopDetector:
             hash_text(tool_output),
         )
 
-        # Update global and per-tool history
         self.global_interactions.append(signature)
         self.tool_interactions[tool_name].append(signature)
 
-        # Update consecutive counter - comparing full signatures
         if signature == self._last_signature:
             self._consecutive_count += 1
         else:
@@ -258,14 +234,12 @@ class RobustLoopDetector:
         - Multiple rapid resets (idempotent)
         """
         if tool_name and tool_name.strip():
-            # Only reset specific tool if it has a valid name
             self.tool_interactions.pop(tool_name, None)
 
             if self._last_signature and self._last_signature[0] == tool_name:
                 self._last_signature = None
                 self._consecutive_count = 0
         else:
-            # Global reset
             self.global_interactions.clear()
             self.tool_interactions.clear()
             self._last_signature = None
@@ -285,7 +259,6 @@ class RobustLoopDetector:
         if not tool_name:
             return False
 
-        # Get the last signature for this tool
         tool_history = self.tool_interactions.get(tool_name, [])
         if not tool_history:
             return False
@@ -295,7 +268,6 @@ class RobustLoopDetector:
         if self._last_signature is None:
             return False
 
-        # Check if this exact signature is being repeated
         stuck = (
             last_tool_signature == self._last_signature
             and self._consecutive_count >= self.consecutive_threshold
@@ -323,11 +295,10 @@ class RobustLoopDetector:
 
         interactions = list(self.tool_interactions.get(tool_name, []))
 
-        min_required = 4  # At minimum need 4 interactions
+        min_required = 4
         if len(interactions) < min_required:
             return False
 
-        # ensure we don't exceed available data
         max_checkable_pattern = min(
             self.max_pattern_length,
             len(interactions) // (self.pattern_repetition_threshold + 1),
@@ -337,17 +308,14 @@ class RobustLoopDetector:
             return False
 
         for pattern_len in range(1, max_checkable_pattern + 1):
-            # Check if pattern repeats enough times
             required_length = pattern_len * (self.pattern_repetition_threshold + 1)
 
             if len(interactions) < required_length:
                 continue
 
-            # Extract the pattern and check if it repeats
             pattern = interactions[-pattern_len:]
             is_loop = True
 
-            # Check pattern_repetition_threshold number of previous occurrences
             for i in range(1, self.pattern_repetition_threshold + 1):
                 start_idx = -(i + 1) * pattern_len
                 end_idx = -i * pattern_len if i > 0 else None
@@ -428,10 +396,8 @@ def normalize_content(content: any) -> str:
     if isinstance(content, str):
         return content
     try:
-        # convert dicts/lists cleanly to JSON string
         return json.dumps(content, ensure_ascii=False)
     except Exception:
-        # fallback to str() for objects or errors
         return str(content)
 
 
@@ -455,17 +421,14 @@ def json_to_smooth_text(content):
     - Safe fallback: returns original content if anything fails.
     """
     try:
-        # if content is str, try to parse as JSON
         if isinstance(content, str):
             try:
                 data = json.loads(content)
             except json.JSONDecodeError:
-                # Not JSON, treat as plain text
                 return content
         else:
-            data = content  # already dict/list/scalar
+            data = content
 
-        # recursively flatten
         def _flatten(obj):
             if isinstance(obj, dict):
                 sentences = []
@@ -484,7 +447,6 @@ def json_to_smooth_text(content):
         return _flatten(data)
 
     except Exception:
-        # fallback: return original string content
         return str(content)
 
 
@@ -508,24 +470,17 @@ def normalize_enriched_tool(enriched: str) -> str:
     if not enriched:
         return ""
 
-    # Convert to lowercase
     text = enriched.lower()
 
-    # Remove JSON structural characters
     text = re.sub(r'[{}\[\]":\',]', " ", text)
 
-    # Split camelCase and snake_case into separate words
-    # e.g., "userName" -> "user name", "user_name" -> "user name"
     text = re.sub(r"([a-z])([A-Z])", r"\1 \2", text)
     text = re.sub(r"_", " ", text)
 
-    # Remove special characters but keep spaces and alphanumeric
     text = re.sub(r"[^a-z0-9\s]", " ", text)
 
-    # Normalize multiple spaces to single space
     text = re.sub(r"\s+", " ", text)
 
-    # Strip leading/trailing whitespace
     normalized = text.strip()
 
     return normalized
@@ -550,16 +505,11 @@ def build_kwargs(agent, provided_params: dict):
             kwargs[name] = provided_params[name]
             continue
 
-        # REQUIRED param missing → FAIL HARD
         if param.default is inspect.Parameter.empty:
             raise ValueError(
                 f"Missing required parameter '{name}' for agent '{agent.name}'"
             )
 
-        # Optional param → let default apply
-        # do nothing
-
-    # OPTIONAL: reject extra params (strict mode)
     for extra in provided_params:
         if extra not in sig.parameters:
             raise ValueError(f"Unexpected parameter '{extra}' for agent '{agent.name}'")
@@ -591,7 +541,6 @@ def build_sub_agents_observation_xml(observations: list[dict]) -> str:
         xml_lines.append(f"    <agent_name>{agent_name}</agent_name>")
         xml_lines.append(f"    <status>{status}</status>")
 
-        # Use <o> for success, <e> for errors
         if status == "error":
             xml_lines.append(f"    <e>{output}</e>")
         else:
@@ -646,11 +595,9 @@ def handle_stuck_state(original_system_prompt: str, message_stuck_prompt: bool =
             "❗ Do not repeat the same failed strategy or go silent."
         )
 
-    # Create a temporary modified system prompt
     modified_system_prompt = (
         f"{stuck_prompt}\n\n"
         f"Your previous approaches to solve this problem have failed. You need to try something completely different.\n\n"
-        # f"{original_system_prompt}"
     )
 
     return modified_system_prompt
@@ -689,8 +636,8 @@ def strip_json_comments(text: str) -> str:
     def replacer(match):
         s = match.group(0)
         if s.startswith('"'):
-            return s  # keep strings intact
-        return ""  # remove comments
+            return s
+        return ""
 
     pattern = r'"(?:\\.|[^"\\])*"' + r"|//.*?$|/\*.*?\*/"
     return re.sub(pattern, replacer, text, flags=re.DOTALL | re.MULTILINE)
@@ -719,7 +666,6 @@ def show_sub_agent_call_result(agent_call_result):
 
     blocks.append(Text(f"PARENT AGENT: {parent_agent.upper()}", style="bold magenta"))
 
-    # index outputs by agent_name for safe pairing
     output_map = {o["agent_name"]: o for o in outputs}
 
     for call in agent_calls:
@@ -766,44 +712,35 @@ def normalize_tool_args(value: Any) -> Any:
     - Preserves strings with XML/multi-line content
     """
 
-    # UNWRAP single-element list containing a dict
     if isinstance(value, list) and len(value) == 1 and isinstance(value[0], dict):
         value = value[0]
 
     def _normalize(v: Any) -> Any:
-        # 1. Handle strings
         if isinstance(v, str):
             val = v.strip()
-            # null / none
             if val.lower() in ("null", "none"):
                 return None
-            # boolean
             if val.lower() == "true":
                 return True
             if val.lower() == "false":
                 return False
-            # integer / float
             try:
                 if "." in val or "e" in val.lower():
                     return float(val)
                 return int(val)
             except ValueError:
                 pass
-            # JSON parsing (double-quoted)
             try:
                 parsed_json = json.loads(val)
                 return _normalize(parsed_json)
             except (ValueError, json.JSONDecodeError):
                 pass
-            # Python literal_eval (single quotes, tuples, lists, dicts)
             if val.startswith(("[", "{", "(")) and val.endswith(("]", "}", ")")):
                 try:
                     parsed_literal = ast.literal_eval(val)
                     return _normalize(parsed_literal)
                 except (ValueError, SyntaxError):
                     pass
-            # Comma-separated string → list (avoid splitting inside quotes)
-            # BUT: Don't split if it looks like XML or has < > characters
             if (
                 "," in val
                 and not (val.startswith('"') or val.startswith("'"))
@@ -812,18 +749,13 @@ def normalize_tool_args(value: Any) -> Any:
                 parts = [p.strip() for p in val.split(",") if p.strip()]
                 if len(parts) > 1:
                     return [_normalize(p) for p in parts]
-            # fallback to original string
             return v
-        # 2. Handle dict recursively
         elif isinstance(v, dict):
             return {k: _normalize(val) for k, val in v.items()}
-        # 3. Handle list recursively
         elif isinstance(v, list):
             return [_normalize(i) for i in v]
-        # 4. Handle tuple recursively
         elif isinstance(v, tuple):
             return tuple(_normalize(i) for i in v)
-        # 5. Other types: leave as-is
         return v
 
     return _normalize(value)
@@ -837,7 +769,6 @@ def get_mac_address() -> str:
     """
     try:
         if platform.system() == "Linux":
-            # Try to get MAC address from /sys/class/net/
             for interface in ["eth0", "wlan0", "en0"]:
                 try:
                     with open(f"/sys/class/net/{interface}/address") as f:
@@ -847,7 +778,6 @@ def get_mac_address() -> str:
                 except FileNotFoundError:
                     continue
 
-            # Fallback to using ip command
             result = subprocess.run(
                 ["ip", "link", "show"], capture_output=True, text=True
             )
@@ -855,7 +785,7 @@ def get_mac_address() -> str:
                 if "link/ether" in line:
                     return line.split("link/ether")[1].split()[0]
 
-        elif platform.system() == "Darwin":  # macOS
+        elif platform.system() == "Darwin":
             result = subprocess.run(["ifconfig"], capture_output=True, text=True)
             for line in result.stdout.split("\n"):
                 if "ether" in line:
@@ -864,13 +794,12 @@ def get_mac_address() -> str:
         elif platform.system() == "Windows":
             result = subprocess.run(["getmac"], capture_output=True, text=True)
             for line in result.stdout.split("\n"):
-                if ":" in line and "-" in line:  # Look for MAC address format
+                if ":" in line and "-" in line:
                     return line.split()[0]
 
     except Exception as e:
         logger.warning(f"Could not get MAC address: {e}")
 
-    # If all else fails, generate a UUID
     return str(uuid.uuid4())
 
 
@@ -901,10 +830,8 @@ def build_xml_observations_block(tools_results):
     return "\n".join(lines)
 
 
-# Create a global instance of the MAC address
 CLIENT_MAC_ADDRESS = get_mac_address()
 
-# Opik integration for tracing, logging, and observability
 OPIK_AVAILABLE = False
 track = None
 
@@ -921,13 +848,11 @@ try:
     else:
         logger.debug("Opik available but no valid credentials - using fake decorator")
 
-        # Create fake decorator when no credentials - must handle both @track and @track("name")
         def track(name_or_func=None):
             if callable(name_or_func):
-                # Called as @track (function passed directly)
                 return name_or_func
             else:
-                # Called as @track("name") - return decorator function
+
                 def decorator(func):
                     return func
 
@@ -937,13 +862,12 @@ try:
 
             return decorator
 except ImportError:
-    # No-op decorator if Opik is not available
+
     def track(name_or_func=None):
         if callable(name_or_func):
-            # Called as @track (function passed directly)
             return name_or_func
         else:
-            # Called as @track("name") - return decorator function
+
             def decorator(func):
                 return func
 

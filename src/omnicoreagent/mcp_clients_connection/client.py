@@ -170,8 +170,6 @@ class Configuration:
         if not self.llm_api_key:
             raise ValueError("LLM_API_KEY not found in environment variables")
 
-        # Note: embedding_api_key is not enforced here - only when calling embedding methods
-
     @staticmethod
     def load_env() -> None:
         """Load environment variables from .env file."""
@@ -182,11 +180,9 @@ class Configuration:
         config_path = Path(file_path)
         logger.info(f"Loading configuration from: {config_path.name}")
 
-        # First check: filename must start with "servers_config"
         if not config_path.name.startswith("servers_config"):
             raise ValueError("Config file name must start with 'servers_config'")
 
-        # Second check: if it's a full path (agent config), use it directly
         if config_path.is_absolute() or config_path.parent != Path("."):
             if config_path.exists():
                 with open(config_path, encoding="utf-8") as f:
@@ -194,7 +190,6 @@ class Configuration:
             else:
                 raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-        # Third check: use as relative path in current directory which is mcpclient
         if config_path.exists():
             with open(config_path, encoding="utf-8") as f:
                 return json.load(f)
@@ -209,7 +204,6 @@ class MCPClient:
         debug: bool = False,
         config_filename: str = "servers_config.json",
     ):
-        # Initialize session and client objects
         self.config = config
         self.config_filename = config_filename
         self.sessions = {}
@@ -218,10 +212,9 @@ class MCPClient:
         self.available_resources = {}
         self.available_prompts = {}
         self.server_names = []
-        self.added_servers_names = {}  # this to map the name used in the config and the actual server name gotten after initialization
+        self.added_servers_names = {}
         self.debug = debug
         self.system_prompt = None
-        # Create LLM connection only if LLM configuration is available
         self.llm_connection = None
         if self.config and hasattr(self.config, "llm_api_key"):
             try:
@@ -254,14 +247,12 @@ class MCPClient:
             ]
             results = await asyncio.gather(*connect_tasks, return_exceptions=True)
 
-            # Log any failed connections
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Server connection failed: {result}")
                 logger.info(f"Server connection result: {result}")
         except Exception as e:
             logger.info(f"start servers task error: {e}")
-        # start the notification stream with an asyncio task
         asyncio.create_task(
             handle_notifications(
                 sessions=self.sessions,
@@ -276,7 +267,6 @@ class MCPClient:
 
     async def _connect_to_single_server(self, server, server_added_name):
         try:
-            # create AsyncExitStack per mcp server to ensure we can remove it safely without cancelling all tasks
             stack = AsyncExitStack()
             transport_type = server["srv_config"].get("transport_type", "stdio")
             read_stream = None
@@ -288,12 +278,10 @@ class MCPClient:
             auth_config = server["srv_config"].get("auth", None)
             use_oauth = auth_config and auth_config.get("method") == "oauth"
 
-            # Set up callback server
             self.server_count += 1
             callback_port = 3000 + self.server_count
             callback_server = CallbackServer(port=callback_port)
             oauth_auth = None
-            # start the callback server if use_oauth
             if use_oauth:
                 callback_server.start()
 
@@ -320,7 +308,6 @@ class MCPClient:
                     "response_types": ["code"],
                     "token_endpoint_auth_method": "client_secret_post",
                 }
-                # Create OAuth authentication handler using the new interface
 
                 oauth_auth = OAuthClientProvider(
                     server_url=url.replace("/mcp", "").replace("/sse", ""),
@@ -364,7 +351,6 @@ class MCPClient:
                 )
                 read_stream, write_stream, _ = transport
             else:
-                # stdio connection (default)
                 args = server["srv_config"]["args"]
                 command = server["srv_config"]["command"]
                 env = (
@@ -384,7 +370,7 @@ class MCPClient:
                     read_stream,
                     write_stream,
                     sampling_callback=self.sampling_callback._sampling,
-                    read_timeout_seconds=timedelta(seconds=300),  # 5 minutes timeout
+                    read_timeout_seconds=timedelta(seconds=300),
                 )
             )
             init_result = await session.initialize()
@@ -414,7 +400,6 @@ class MCPClient:
                 logger.info(
                     f"Successfully connected to {server_name} via {transport_type}"
                 )
-            # refresh capabilities to ensure we have the latest tools, resources, and prompts
             await refresh_capabilities(
                 sessions=self.sessions,
                 server_names=self.server_names,
@@ -507,7 +492,6 @@ class MCPClient:
             return
         try:
             logger.info(f"Closing context stack for {server_name}")
-            # Ensure transport and session resources are cleaned up
             await stack.aclose()
             logger.info(f"Server {server_name} has been disconnected and removed.")
         except RuntimeError as e:
@@ -543,16 +527,13 @@ class MCPClient:
         try:
             logger.info("Starting client shutdown...")
             try:
-                async with asyncio.timeout(
-                    60.0
-                ):  # 60 second timeout for server cleanup
+                async with asyncio.timeout(60.0):
                     await self.clean_up_server()
             except asyncio.TimeoutError:
                 logger.warning("Server cleanup timed out")
             except Exception as e:
                 logger.error(f"Error during server cleanup: {e}")
 
-            # Clear any remaining data structures
             self.server_names.clear()
             self.added_servers_names.clear()
             self.sessions.clear()

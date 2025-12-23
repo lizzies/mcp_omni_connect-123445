@@ -43,13 +43,11 @@ class BackgroundOmniAgent(OmniAgent):
             event_router: Optional event router for event streaming
             task_registry: TaskRegistry instance (required for task management)
         """
-        # Extract agent configuration
         agent_config = config.get("agent_config", {})
         model_config = config.get("model_config", {})
         mcp_tools = config.get("mcp_tools", [])
-        local_tools = config.get("local_tools", None)  # ToolRegistry instance
+        local_tools = config.get("local_tools", None)
 
-        # Initialize base OmniAgent with all components
         super().__init__(
             name=config.get("agent_id", f"background_agent_{uuid.uuid4().hex[:8]}"),
             system_instruction=config.get(
@@ -58,28 +56,24 @@ class BackgroundOmniAgent(OmniAgent):
             ),
             model_config=model_config,
             mcp_tools=mcp_tools,
-            local_tools=local_tools,  # Pass ToolRegistry instance
+            local_tools=local_tools,
             agent_config=agent_config,
             memory_router=memory_router,
             event_router=event_router,
             debug=config.get("debug", False),
         )
 
-        # Background-specific attributes
         self.agent_id = config.get("agent_id", self.name)
-        self.interval = config.get("interval", 3600)  # Default: 1 hour
+        self.interval = config.get("interval", 3600)
         self.max_retries = config.get("max_retries", 3)
-        self.retry_delay = config.get("retry_delay", 60)  # seconds
+        self.retry_delay = config.get("retry_delay", 60)
 
-        # Task registry integration (required)
         if task_registry is None:
             raise ValueError("TaskRegistry is required for BackgroundOmniAgent")
         self.task_registry = task_registry
 
-        # Generate persistent session_id for this agent instance
         self.session_id = f"background_{self.agent_id}_{uuid.uuid4().hex[:8]}"
 
-        # State
         self.is_running = False
         self.last_run = None
         self.run_count = 0
@@ -157,18 +151,15 @@ class BackgroundOmniAgent(OmniAgent):
             )
             return
 
-        # Check if task is registered
         if not self.has_task():
             raise ValueError(
                 f"No task registered for agent {self.agent_id}. Register a task first using TaskRegistry."
             )
 
         self.is_running = True
-        # Use the main session_id for consistency - don't create new session IDs for each run
         task_session_id = self.session_id
 
         try:
-            # Emit task started event using EventRouter
             task_started_event = Event(
                 type=EventType.BACKGROUND_TASK_STARTED,
                 payload=BackgroundTaskStartedPayload(
@@ -184,7 +175,6 @@ class BackgroundOmniAgent(OmniAgent):
                 session_id=task_session_id, event=task_started_event
             )
 
-            # Emit agent status event
             status_event = Event(
                 type=EventType.BACKGROUND_AGENT_STATUS,
                 payload=BackgroundAgentStatusPayload(
@@ -199,14 +189,11 @@ class BackgroundOmniAgent(OmniAgent):
                 session_id=task_session_id, event=status_event
             )
 
-            # Execute task with retries
             result = await self._execute_with_retries(**kwargs)
 
-            # Update metrics
             self.run_count += 1
             self.last_run = datetime.now()
 
-            # Emit task completed event
             task_completed_event = Event(
                 type=EventType.BACKGROUND_TASK_COMPLETED,
                 payload=BackgroundTaskCompletedPayload(
@@ -222,7 +209,6 @@ class BackgroundOmniAgent(OmniAgent):
                 session_id=task_session_id, event=task_completed_event
             )
 
-            # Emit agent status event
             status_event = Event(
                 type=EventType.BACKGROUND_AGENT_STATUS,
                 payload=BackgroundAgentStatusPayload(
@@ -244,7 +230,6 @@ class BackgroundOmniAgent(OmniAgent):
         except Exception as e:
             self.error_count += 1
 
-            # Emit error event
             error_event = Event(
                 type=EventType.BACKGROUND_TASK_ERROR,
                 payload=BackgroundTaskErrorPayload(
@@ -260,7 +245,6 @@ class BackgroundOmniAgent(OmniAgent):
                 session_id=task_session_id, event=error_event
             )
 
-            # Emit agent status event
             status_event = Event(
                 type=EventType.BACKGROUND_AGENT_STATUS,
                 payload=BackgroundAgentStatusPayload(
@@ -289,13 +273,11 @@ class BackgroundOmniAgent(OmniAgent):
 
         for attempt in range(self.max_retries + 1):
             try:
-                # Get task query from TaskRegistry (no fallback)
                 task_query = kwargs.get("query") or self.get_task_query()
 
-                # Run the agent using the base OmniAgent run method with consistent session_id
                 result = await self.run(
                     query=task_query,
-                    session_id=self.session_id,  # Use consistent session_id
+                    session_id=self.session_id,
                 )
 
                 return result
@@ -311,7 +293,6 @@ class BackgroundOmniAgent(OmniAgent):
                 else:
                     break
 
-        # All retries exhausted
         raise last_error
 
     def get_status(self) -> Dict[str, Any]:
@@ -339,11 +320,9 @@ class BackgroundOmniAgent(OmniAgent):
         """Get information about available tools."""
         tools_info = {"mcp_tools": [], "local_tools": []}
 
-        # Get MCP tools info
         if self.mcp_client and self.mcp_client.available_tools:
             tools_info["mcp_tools"] = list(self.mcp_client.available_tools.keys())
 
-        # Get local tools info
         if self.local_tools:
             tools_info["local_tools"] = self.local_tools.list_tools()
 
@@ -352,7 +331,6 @@ class BackgroundOmniAgent(OmniAgent):
     async def update_config(self, new_config: Dict[str, Any]):
         """Update agent configuration."""
         try:
-            # Update basic config
             if "interval" in new_config:
                 self.interval = new_config["interval"]
             if "max_retries" in new_config:
@@ -371,12 +349,9 @@ class BackgroundOmniAgent(OmniAgent):
     async def cleanup(self):
         """Clean up background agent resources."""
         try:
-            # Stop any running tasks
             if self.is_running:
                 logger.info(f"Stopping running task for agent {self.agent_id}")
-                # Note: This is a simple approach; in production you might want more sophisticated task cancellation
 
-            # Clean up base agent
             await super().cleanup()
 
             logger.info(f"Cleaned up background agent {self.agent_id}")
