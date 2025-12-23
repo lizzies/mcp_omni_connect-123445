@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Basic OmniAgent Example
+Basic OmniCoreAgent Example
 
-This example shows how to create a simple agent using the OmniAgent class.
+This example shows how to create a simple agent using the OmniCoreAgent class.
 Demonstrates the basic setup and usage patterns for MCP agents.
 """
 
@@ -13,17 +13,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # TOP-LEVEL IMPORTS (Recommended for most use cases)
-from omnicoreagent import OmniAgent, MemoryRouter, EventRouter, logger
+from omnicoreagent import OmniCoreAgent, MemoryRouter, EventRouter, logger
 
 # LOW-LEVEL IMPORTS (Alternative approach for advanced users)
-# from omnicoreagent.omni_agent import OmniAgent
+# from omnicoreagent.omni_agent import OmniCoreAgent
 # from omnicoreagent.core.memory_store.memory_router import MemoryRouter
 # from omnicoreagent.core.events.event_router import EventRouter
 # from omnicoreagent.core.utils import logger
 
 
 class BasicAgent:
-    """A simple agent using OmniAgent with in-memory storage."""
+    """A simple agent using OmniCoreAgent with in-memory storage."""
 
     def __init__(self):
         """Initialize the basic agent with simple configuration."""
@@ -32,8 +32,8 @@ class BasicAgent:
         self.memory_store = MemoryRouter(memory_store_type="mongodb")
         self.event_router = EventRouter(event_store_type="in_memory")
 
-        # Create the OmniAgent
-        self.agent = OmniAgent(
+        # Create the OmniCoreAgent
+        self.agent = OmniCoreAgent(
             name="basic_agent",
             system_instruction="""You are a helpful AI assistant.
             You can help with various tasks including answering questions,

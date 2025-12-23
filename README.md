@@ -39,7 +39,7 @@
 - [🏗️ Architecture Overview](#️-architecture-overview)
 
 ### Core Features
-1. [🤖 OmniAgent — The Heart of the Framework](#1--omniagent--the-heart-of-the-framework)
+1. [🤖 OmniCoreAgent — The Heart of the Framework](#1--omnicoreagent--the-heart-of-the-framework)
 2. [🧠 Multi-Tier Memory System](#2--multi-tier-memory-system-plug--play)
 3. [📡 Event System](#3--event-system-plug--play)
 4. [🔌 Built-in MCP Client](#4--built-in-mcp-client)
@@ -143,10 +143,10 @@ echo "LLM_API_KEY=your_openai_api_key_here" > .env
 
 ```python
 import asyncio
-from omnicoreagent import OmniAgent
+from omnicoreagent import OmniCoreAgent
 
 async def main():
-    agent = OmniAgent(
+    agent = OmniCoreAgent(
         name="my_agent",
         system_instruction="You are a helpful assistant.",
         model_config={"provider": "openai", "model": "gpt-4o"}
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 ```
 OmniCoreAgent Framework
 ├── 🤖 Core Agent System
-│   ├── OmniAgent (Main Class)
+│   ├── OmniCoreAgent (Main Class)
 │   ├── ReactAgent (Reasoning Engine)
 │   └── Tool Orchestration
 │
@@ -223,20 +223,20 @@ OmniCoreAgent Framework
 
 ## 🎯 Core Features
 
-### 1. 🤖 OmniAgent — The Heart of the Framework
+### 1. 🤖 OmniCoreAgent — The Heart of the Framework
 
 ```python
-from omnicoreagent import OmniAgent, ToolRegistry, MemoryRouter, EventRouter
+from omnicoreagent import OmniCoreAgent, ToolRegistry, MemoryRouter, EventRouter
 
 # Basic Agent
-agent = OmniAgent(
+agent = OmniCoreAgent(
     name="assistant",
     system_instruction="You are a helpful assistant.",
     model_config={"provider": "openai", "model": "gpt-4o"}
 )
 
 # Production Agent with All Features
-agent = OmniAgent(
+agent = OmniCoreAgent(
     name="production_agent",
     system_instruction="You are a production agent.",
     model_config={"provider": "openai", "model": "gpt-4o"},
@@ -266,17 +266,17 @@ await agent.cleanup()                       # Clean up resources and remove the 
 await agent.cleanup_mcp_servers()               # Clean up MCP servers without removing the agent and the config
 ```
 
-> 💡 **When to Use**: OmniAgent is your go-to for any AI task — from simple Q&A to complex multi-step workflows. Start here for any agent project.
+> 💡 **When to Use**: OmniCoreAgent is your go-to for any AI task — from simple Q&A to complex multi-step workflows. Start here for any agent project.
 
 ### 2. 🧠 Multi-Tier Memory System (Plug & Play)
 
 **5 backends with runtime switching** — start with Redis, switch to MongoDB, then PostgreSQL — all on the fly!
 
 ```python
-from omnicoreagent import OmniAgent, MemoryRouter
+from omnicoreagent import OmniCoreAgent, MemoryRouter
 
 # Start with Redis
-agent = OmniAgent(
+agent = OmniCoreAgent(
     name="my_agent",
     memory_router=MemoryRouter("redis"),
     model_config={"provider": "openai", "model": "gpt-4o"}
@@ -306,7 +306,7 @@ Real-time event streaming with runtime switching:
 from omnicoreagent import EventRouter
 
 # Start with in-memory
-agent = OmniAgent(
+agent = OmniCoreAgent(
     event_router=EventRouter("in_memory"),
     ...
 )
@@ -383,7 +383,7 @@ Connect to any MCP-compatible service with support for multiple transport protoc
 #### Complete Example with All 3 Transport Types
 
 ```python
-agent = OmniAgent(
+agent = OmniCoreAgent(
     name="multi_mcp_agent",
     system_instruction="You have access to filesystem, GitHub, and live data.",
     model_config={"provider": "openai", "model": "gpt-4o"},
@@ -450,7 +450,7 @@ def calculate_area(length: float, width: float) -> str:
     """Calculate rectangle area."""
     return f"Area: {length * width} square units"
 
-agent = OmniAgent(
+agent = OmniCoreAgent(
     name="tool_agent",
     local_tools=tools,  # Your custom tools!
     ...
@@ -536,10 +536,10 @@ agent_config = {
 Delegate tasks to specialized child agents:
 
 ```python
-weather_agent = OmniAgent(name="weather_agent", ...)
-filesystem_agent = OmniAgent(name="filesystem_agent", mcp_tools=MCP_TOOLS, ...)
+weather_agent = OmniCoreAgent(name="weather_agent", ...)
+filesystem_agent = OmniCoreAgent(name="filesystem_agent", mcp_tools=MCP_TOOLS, ...)
 
-parent_agent = OmniAgent(
+parent_agent = OmniCoreAgent(
     name="parent_agent",
     sub_agents=[weather_agent, filesystem_agent],
     ...
@@ -836,7 +836,7 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 **OAuth Server Starts**: Normal when using `"auth": {"method": "oauth"}`. Remove if not needed.
 
-**Debug Mode**: `agent = OmniAgent(..., debug=True)`
+**Debug Mode**: `agent = OmniCoreAgent(..., debug=True)`
 
 **Help**: Check [GitHub Issues](https://github.com/omnirexflora-labs/omnicoreagent/issues)
 

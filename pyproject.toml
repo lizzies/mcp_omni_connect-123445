@@ -60,7 +60,7 @@ dependencies = [
 ]
 
 [project.scripts]
-omnicoreagent= "omnicoreagent.omni_agent.agent:OmniAgent"
+omnicoreagent= "omnicoreagent.omni_agent.agent:OmniCoreAgent"
 
 [project.urls]
 Repository = "https://github.com/omnirexflora-labs/omnicoreagent"

@@ -8,7 +8,7 @@ import os
 import asyncio
 from datetime import datetime, timedelta
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     BackgroundAgentManager,
@@ -29,7 +29,7 @@ def query_sales_data(days: int = 30) -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/analytics.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/analytics.db")
 
         if not os.path.exists(db_path):
             return "No analytics database found. Run seed_analytics_data() first."
@@ -86,7 +86,7 @@ def analyze_customer_behavior() -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/analytics.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/analytics.db")
 
         if not os.path.exists(db_path):
             return "No analytics database found."
@@ -148,7 +148,7 @@ def analyze_product_performance() -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/analytics.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/analytics.db")
 
         if not os.path.exists(db_path):
             return "No analytics database found."
@@ -202,7 +202,7 @@ def detect_trends(metric: str = "revenue") -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/analytics.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/analytics.db")
 
         if not os.path.exists(db_path):
             return "No analytics database found."
@@ -285,7 +285,7 @@ def calculate_kpis() -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/analytics.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/analytics.db")
 
         if not os.path.exists(db_path):
             return "No analytics database found."
@@ -417,7 +417,7 @@ def save_report_to_file(
     """Save analytics report to file."""
 
     try:
-        reports_dir = os.path.expanduser("~/.omniagent/reports")
+        reports_dir = os.path.expanduser("~/.OmniCoreAgent/reports")
         os.makedirs(reports_dir, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -441,7 +441,7 @@ def seed_analytics_data() -> str:
     from datetime import datetime, timedelta
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/analytics.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/analytics.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         conn = sqlite3.connect(db_path)
@@ -662,10 +662,10 @@ async def setup_and_run_agent():
     print("  • Calculate and track KPIs automatically")
     print("  • Detect trends and anomalies in business data")
     print("  • Provide actionable insights and recommendations")
-    print("  • Save reports to ~/.omniagent/reports/")
+    print("  • Save reports to ~/.OmniCoreAgent/reports/")
     print()
-    print("Database: ~/.omniagent/analytics.db")
-    print("Reports: ~/.omniagent/reports/")
+    print("Database: ~/.OmniCoreAgent/analytics.db")
+    print("Reports: ~/.OmniCoreAgent/reports/")
     print()
     print("Analytics capabilities:")
     print("  • Sales performance tracking")

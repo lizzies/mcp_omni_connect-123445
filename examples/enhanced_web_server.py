@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced OmniAgent Web Server - Professional Showcase Interface
+Enhanced OmniCoreAgent Web Server - Professional Showcase Interface
 Clean FastAPI app using lifespan with separate main agent and background agent services.
 """
 
@@ -20,9 +20,9 @@ from pydantic import BaseModel
 import uvicorn
 from contextlib import asynccontextmanager
 
-# OmniAgent imports
+# OmniCoreAgent imports
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     BackgroundAgentManager,
@@ -159,7 +159,7 @@ MCP_TOOLS = [
 
 class MainAgentService:
     def __init__(self) -> None:
-        self.agent: Optional[OmniAgent] = None
+        self.agent: Optional[OmniCoreAgent] = None
         self.local_tools: ToolRegistry = build_tool_registry()
         self.memory_router: Optional[MemoryRouter] = None
         self.event_router: Optional[EventRouter] = None
@@ -168,7 +168,7 @@ class MainAgentService:
     async def initialize(self) -> None:
         self.memory_router = MemoryRouter(memory_store_type="in_memory")
         self.event_router = EventRouter(event_store_type="in_memory")
-        self.agent = OmniAgent(
+        self.agent = OmniCoreAgent(
             name="enhanced_web_agent",
             system_instruction=(
                 "You are an advanced AI assistant with access to multiple tools and capabilities.\n"
@@ -193,7 +193,7 @@ class MainAgentService:
         # Connect to MCP servers
         await self.agent.connect_mcp_servers()
         self._mcp_servers_connected = True
-        logger.info("Initialized MainAgentService with OmniAgent")
+        logger.info("Initialized MainAgentService with OmniCoreAgent")
 
     async def run(self, query: str, session_id: str) -> dict:
         if not self.agent:
@@ -287,7 +287,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="OmniAgent Professional Interface",
+    title="OmniCoreAgent Professional Interface",
     description="Comprehensive AI Agent Framework with MCP Client Capabilities",
     version="1.0.0",
     docs_url="/docs",
@@ -392,7 +392,7 @@ async def create_background_agent(payload: BackgroundAgentRequest, request: Requ
         "system_instruction": f"You are a background agent that performs the task: {payload.query}",
         "model_config": {"provider": "openai", "model": "gpt-4.1", "temperature": 0.3},
         "agent_config": {"max_steps": 10, "tool_call_timeout": 60},
-        # interval must be at top-level for BackgroundOmniAgent to pick it up
+        # interval must be at top-level for BackgroundOmniCoreAgent to pick it up
         "interval": interval_seconds if interval_seconds is not None else 3600,
         "task_config": {
             "query": payload.query,
@@ -641,7 +641,7 @@ async def health_check(request: Request):
 
 
 def main():
-    print("🚀 Starting Enhanced OmniAgent Web Server...")
+    print("🚀 Starting Enhanced OmniCoreAgent Web Server...")
     print(f"📁 Static files directory: {STATIC_DIR}")
     print(f"📁 Templates directory: {TEMPLATES_DIR}")
     print("📖 API Documentation: http://localhost:8001/docs")

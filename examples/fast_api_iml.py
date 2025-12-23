@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-FastAPI Server with OmniAgent
+FastAPI Server with OmniCoreAgent
 
-This example shows how to integrate OmniAgent with FastAPI for web-based AI interactions.
+This example shows how to integrate OmniCoreAgent with FastAPI for web-based AI interactions.
 Provides RESTful API endpoints for chat, events, and resource management.
 """
 
@@ -18,27 +18,27 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 # TOP-LEVEL IMPORTS (Recommended for most use cases)
-from omnicoreagent import OmniAgent, MemoryRouter, EventRouter, logger
+from omnicoreagent import OmniCoreAgent, MemoryRouter, EventRouter, logger
 
 # LOW-LEVEL IMPORTS (Alternative approach for advanced users)
-# from omnicoreagent.omni_agent import OmniAgent
+# from omnicoreagent.omni_agent import OmniCoreAgent
 # from omnicoreagent.core.memory_store.memory_router import MemoryRouter
 # from omnicoreagent.core.events.event_router import EventRouter
 # from omnicoreagent.core.utils import logger
 
 
-class OmniAgentServer:
-    """FastAPI server wrapper for OmniAgent with web-friendly interfaces."""
+class OmniCoreAgentServer:
+    """FastAPI server wrapper for OmniCoreAgent with web-friendly interfaces."""
 
     def __init__(self):
-        """Initialize the OmniAgent server."""
+        """Initialize the OmniCoreAgent server."""
 
         # Create memory and event routers
         self.memory_store = MemoryRouter(memory_store_type="mongodb")
         self.event_router = EventRouter(event_store_type="database")
 
-        # Create the OmniAgent
-        self.agent = OmniAgent(
+        # Create the OmniCoreAgent
+        self.agent = OmniCoreAgent(
             name="fastapi_agent",
             system_instruction="""You are a helpful AI assistant integrated with a web API.
             You can help users with various tasks including answering questions,
@@ -165,22 +165,22 @@ class OmniAgentServer:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # This code executes before the application starts
-    logger.info("Initializing OmniAgent server...")
+    logger.info("Initializing OmniCoreAgent server...")
 
     try:
-        app.state.agent_server = OmniAgentServer()
-        logger.info("OmniAgent server initialized successfully")
+        app.state.agent_server = OmniCoreAgentServer()
+        logger.info("OmniCoreAgent server initialized successfully")
     except Exception as e:
-        logger.error(f"Failed to initialize OmniAgent server: {e}")
+        logger.error(f"Failed to initialize OmniCoreAgent server: {e}")
         raise
 
     yield  # The application runs here
 
     # This code executes when the application is shutting down
-    logger.info("Shutting down OmniAgent server...")
+    logger.info("Shutting down OmniCoreAgent server...")
     if hasattr(app.state, "agent_server"):
         # Cleanup if needed
-        logger.info("OmniAgent server shut down successfully")
+        logger.info("OmniCoreAgent server shut down successfully")
 
 
 # Initialize FastAPI with the lifespan

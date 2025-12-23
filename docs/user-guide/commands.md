@@ -1,13 +1,13 @@
 # Commands Reference
 
-MCPOmni Connect provides a comprehensive set of commands to control its behavior and interact with connected MCP servers.
+OmniCoreAgent provides a comprehensive set of commands to control its behavior and interact with connected MCP servers.
 
 ## Command Types
 
-MCPOmni Connect accepts two types of input:
+OmniCoreAgent accepts two types of input:
 
 ### System Commands (start with `/`)
-Control MCPOmni Connect's behavior and settings
+Control OmniCoreAgent's behavior and settings
 
 ### Natural Language Queries
 Direct questions or requests processed by the AI
@@ -100,7 +100,7 @@ Show current system status and configuration.
 
 **Output Example:**
 ```
-🚀 MCPOmni Connect Status:
+🚀 OmniCoreAgent Status:
 - Mode: AUTONOMOUS
 - Connected Servers: 3
 - Memory: ENABLED (Redis)

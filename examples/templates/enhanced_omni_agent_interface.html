@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced OmniAgent Professional Interface</title>
+    <title>Enhanced OmniCoreAgent Professional Interface</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="card">
-                <h3>🚀 OmniAgent</h3>
+                <h3>🚀 OmniCoreAgent</h3>
                 <p>Professional AI Agent Framework</p>
                 <div class="status-indicator status-active"></div>
                 <span>System Online</span>
@@ -36,7 +38,7 @@
         <div class="main-content">
             <!-- Header -->
             <div class="header">
-                <h1>Enhanced OmniAgent Professional Interface</h1>
+                <h1>Enhanced OmniCoreAgent Professional Interface</h1>
                 <p>Comprehensive AI Agent Framework with MCP Client Capabilities</p>
             </div>
 
@@ -54,14 +56,16 @@
                 <!-- Chat Tab -->
                 <div id="chat-tab" class="tab-content active">
                     <div class="chat-container">
-                        <h3>💬 Chat with OmniAgent</h3>
+                        <h3>💬 Chat with OmniCoreAgent</h3>
                         <div id="chat-messages" class="chat-messages">
                             <div class="message agent">
-                                Hello! I'm your enhanced OmniAgent. I can help you with various tasks, manage background agents, and provide access to multiple tools. How can I assist you today?
+                                Hello! I'm your enhanced OmniCoreAgent. I can help you with various tasks, manage
+                                background agents, and provide access to multiple tools. How can I assist you today?
                             </div>
                         </div>
                         <form id="chat-form" class="chat-input">
-                            <input type="text" id="chat-input" placeholder="Type your message here..." autocomplete="off">
+                            <input type="text" id="chat-input" placeholder="Type your message here..."
+                                autocomplete="off">
                             <button type="submit">Send</button>
                         </form>
                     </div>
@@ -78,11 +82,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="agent-query">Query/Task:</label>
-                                <textarea id="agent-query" placeholder="Describe what this agent should do" rows="3" required></textarea>
+                                <textarea id="agent-query" placeholder="Describe what this agent should do" rows="3"
+                                    required></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="agent-schedule">Schedule (Optional):</label>
-                                <input type="text" id="agent-schedule" placeholder="Examples: every 5 minutes | 300 | 10s | 2h (leave empty for immediate)">
+                                <input type="text" id="agent-schedule"
+                                    placeholder="Examples: every 5 minutes | 300 | 10s | 2h (leave empty for immediate)">
                             </div>
                             <button type="submit" class="btn btn-primary">Create Background Agent</button>
                         </form>
@@ -97,7 +103,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="update-query">New Query:</label>
-                                <textarea id="update-query" placeholder="Enter new task description" rows="3" required></textarea>
+                                <textarea id="update-query" placeholder="Enter new task description" rows="3"
+                                    required></textarea>
                             </div>
                             <button type="submit" class="btn btn-secondary">Update Task</button>
                         </form>
@@ -105,8 +112,11 @@
 
                     <div class="card">
                         <h3>📈 Background Manager Status</h3>
-                        <div id="background-status"><p>Loading...</p></div>
-                        <button id="refresh-bg-status" class="btn btn-secondary" style="margin-top:10px;">Refresh Status</button>
+                        <div id="background-status">
+                            <p>Loading...</p>
+                        </div>
+                        <button id="refresh-bg-status" class="btn btn-secondary" style="margin-top:10px;">Refresh
+                            Status</button>
                     </div>
 
                     <div class="card">
@@ -195,4 +205,5 @@
     <!-- JavaScript -->
     <script src="/static/app.js"></script>
 </body>
-</html> 
+
+</html>

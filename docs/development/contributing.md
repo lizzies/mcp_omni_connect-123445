@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to MCPOmni Connect! This project thrives on community contributions.
+Thank you for your interest in contributing to OmniCoreAgent! This project thrives on community contributions.
 
 ## Quick Links
 
@@ -177,4 +177,4 @@ Contributors are recognized in:
 - GitHub contributors page
 - Special thanks in release notes
 
-Thank you for helping make MCPOmni Connect better! 🚀
+Thank you for helping make OmniCoreAgent better! 🚀

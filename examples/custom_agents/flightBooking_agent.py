@@ -5,10 +5,10 @@ import os
 from typing import Optional
 
 # TOP-LEVEL IMPORTS (Recommended for most use cases)
-from omnicoreagent import OmniAgent, MemoryRouter, EventRouter, ToolRegistry, logger
+from omnicoreagent import OmniCoreAgent, MemoryRouter, EventRouter, ToolRegistry, logger
 
 # LOW-LEVEL IMPORTS (Alternative approach for advanced users)
-# from omnicoreagent.omni_agent.agent import OmniAgent
+# from omnicoreagent.omni_agent.agent import OmniCoreAgent
 # from omnicoreagent.core.memory_store.memory_router import MemoryRouter
 # from omnicoreagent.core.events.event_router import EventRouter
 # from omnicoreagent.core.tools.local_tools_registry import ToolRegistry
@@ -243,19 +243,19 @@ class AirlineAgentCLI:
     """CLI interface for Airline Booking Agent. initialize() once and reuse the agent."""
 
     def __init__(self):
-        self.agent: Optional[OmniAgent] = None
+        self.agent: Optional[OmniCoreAgent] = None
         self.memory_router: Optional[MemoryRouter] = None
         self.event_router: Optional[EventRouter] = None
 
     async def initialize(self):
-        """Initialize the airline agent (instantiate routers and the OmniAgent)."""
+        """Initialize the airline agent (instantiate routers and the OmniCoreAgent)."""
         create_crm()  # bootstrap crm.json if missing
         print("🚀 Initializing Flight Booking Agent...")
 
         self.memory_router = MemoryRouter("in_memory")
         self.event_router = EventRouter("in_memory")
 
-        self.agent = OmniAgent(
+        self.agent = OmniCoreAgent(
             name="flight_booking_agent",
             system_instruction=(
                 "You are an expert Flight Booking Agent with access to flight search, booking, cancellation, "

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-OmniAgent Unified Interface
-A comprehensive CLI/Web interface for OmniAgent with all features.
+OmniCoreAgent Unified Interface
+A comprehensive CLI/Web interface for OmniCoreAgent with all features.
 """
 
 import asyncio
@@ -17,7 +17,7 @@ logger = logging.getLogger("omnicoreagent")
 
 # TOP-LEVEL IMPORTS (Recommended for most use cases)
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     BackgroundAgentManager,
@@ -25,7 +25,7 @@ from omnicoreagent import (
 )
 
 # LOW-LEVEL IMPORTS (Alternative approach for advanced users)
-# from omnicoreagent.omni_agent.agent import OmniAgent
+# from omnicoreagent.omni_agent.agent import OmniCoreAgent
 # from omnicoreagent.core.memory_store.memory_router import MemoryRouter
 # from omnicoreagent.core.events.event_router import EventRouter
 # from omnicoreagent.omni_agent.background_agent.background_agent_manager import (
@@ -479,12 +479,12 @@ MCP_TOOLS = [
 ]
 
 
-class OmniAgentCLI:
-    """Comprehensive CLI interface for OmniAgent."""
+class OmniCoreAgentCLI:
+    """Comprehensive CLI interface for OmniCoreAgent."""
 
     def __init__(self):
         """Initialize the CLI interface."""
-        self.agent: Optional[OmniAgent] = None
+        self.agent: Optional[OmniCoreAgent] = None
         self.memory_router: Optional[MemoryRouter] = None
         self.event_router: Optional[EventRouter] = None
         self.background_manager: Optional[BackgroundAgentManager] = None
@@ -752,14 +752,14 @@ Patterns Found:"""
 
     async def initialize(self):
         """Initialize all components."""
-        print("🚀 Initializing OmniAgent CLI...")
+        print("🚀 Initializing OmniCoreAgent CLI...")
 
         # Initialize routers
         self.memory_router = MemoryRouter("redis")
         self.event_router = EventRouter("redis_stream")
 
         # Initialize agent with exact same config as working example
-        self.agent = OmniAgent(
+        self.agent = OmniCoreAgent(
             name="comprehensive_demo_agent",
             # system_instruction="You are a comprehensive AI assistant with access to mathematical, text processing, system information, data analysis, and file system tools. You can perform complex calculations, format text, analyze data, and provide system information. Always use the appropriate tools for the task and provide clear, helpful responses.",
             system_instruction="""
@@ -784,7 +784,7 @@ Provide clear, supportive, and context-aware responses that help learners grow.
             local_tools=tool_registry,
             sub_agents=[weather_agent, research_agent, filesystem_agent],
             agent_config={
-                "agent_name": "OmniAgent",
+                "agent_name": "OmniCoreAgent",
                 "max_steps": 15,
                 "tool_call_timeout": 60,
                 "request_limit": 0,  # 0 = unlimited
@@ -806,12 +806,12 @@ Provide clear, supportive, and context-aware responses that help learners grow.
         #     memory_router=self.memory_router, event_router=self.event_router
         # )
 
-        print("✅ OmniAgent CLI initialized successfully")
+        print("✅ OmniCoreAgent CLI initialized successfully")
 
     def print_welcome(self):
         """Print welcome message and available commands."""
         print("\n" + "=" * 80)
-        print("🤖 OmniAgent CLI - Unified Interface")
+        print("🤖 OmniCoreAgent CLI - Unified Interface")
         print("=" * 80)
         print("📋 Available Commands:")
         print("  /chat <message>           - Send a message to the agent")
@@ -1089,7 +1089,7 @@ Provide clear, supportive, and context-aware responses that help learners grow.
             print("❌ Background manager not initialized")
             return
 
-        print("🤖 Welcome to BackgroundOmniAgent Creation!")
+        print("🤖 Welcome to BackgroundOmniCoreAgent Creation!")
         print("=" * 50)
         print("🚀 Create a self-flying agent that runs automatically")
         print("📋 Available agent types:")
@@ -1229,12 +1229,12 @@ Provide clear, supportive, and context-aware responses that help learners grow.
 
         config = agent_configs[agent_type]
         try:
-            print(f"\n🚀 Creating BackgroundOmniAgent: {config['agent_id']}")
+            print(f"\n🚀 Creating BackgroundOmniCoreAgent: {config['agent_id']}")
             print("⏳ Please wait...")
 
             result = await self.background_manager.create_agent(config)
 
-            print("✅ BackgroundOmniAgent created successfully!")
+            print("✅ BackgroundOmniCoreAgent created successfully!")
             print("=" * 50)
             print(f"🤖 Agent ID: {result['agent_id']}")
             print(f"🆔 Session ID: {result['session_id']}")
@@ -1463,12 +1463,12 @@ Provide clear, supportive, and context-aware responses that help learners grow.
             await self.initialize()
             self.print_welcome()
 
-            print("💬 Start chatting with OmniAgent! Type /help for commands.")
+            print("💬 Start chatting with OmniCoreAgent! Type /help for commands.")
             print()
 
             while True:
                 try:
-                    user_input = input("🤖 OmniAgent> ").strip()
+                    user_input = input("🤖 OmniCoreAgent> ").strip()
 
                     if not user_input:
                         continue
@@ -1637,7 +1637,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    parser = argparse.ArgumentParser(description="OmniAgent Unified Interface")
+    parser = argparse.ArgumentParser(description="OmniCoreAgent Unified Interface")
     parser.add_argument(
         "--mode",
         choices=["cli", "web"],
@@ -1649,7 +1649,7 @@ def main():
 
     if args.mode == "cli":
         # Run CLI interface
-        cli = OmniAgentCLI()
+        cli = OmniCoreAgentCLI()
         try:
             asyncio.run(cli.run())
         except KeyboardInterrupt:

@@ -23,7 +23,7 @@ def make_mock_config(provider="openai", model="gpt-4"):
 
 @pytest.fixture
 def mock_llm_connection():
-    with patch("mcpomni_connect.llm.litellm"):
+    with patch("omnicoreagent.llm.litellm"):
         return LLMConnection(Mock(**make_mock_config()))
 
 
@@ -50,7 +50,7 @@ class TestLLMConnection:
         tools = [{"name": "tool", "description": "desc"}]
 
         with patch(
-            "mcpomni_connect.llm.litellm.acompletion", new_callable=AsyncMock
+            "omnicoreagent.llm.litellm.acompletion", new_callable=AsyncMock
         ) as mock_completion:
             mock_completion.return_value = {"mocked": "response"}
 
@@ -79,7 +79,7 @@ class TestLLMConnection:
         messages = [{"role": "user", "content": "Fail please"}]
 
         with patch(
-            "mcpomni_connect.llm.litellm.acompletion", new_callable=AsyncMock
+            "omnicoreagent.llm.litellm.acompletion", new_callable=AsyncMock
         ) as mock_completion:
             mock_completion.side_effect = Exception("Boom")
 

@@ -7,7 +7,7 @@
 # import pytest
 # from dotenv import load_dotenv
 
-# from mcpomni_connect.client import Configuration, MCPClient
+# from omnicoreagent.client import Configuration, MCPClient
 
 # # Mock data for testing
 # MOCK_SERVER_CONFIG = {
@@ -119,12 +119,12 @@
 #         return session
 
 #     @pytest.mark.asyncio
-#     @patch("mcpomni_connect.client.refresh_capabilities", new_callable=AsyncMock)
+#     @patch("omnicoreagent.client.refresh_capabilities", new_callable=AsyncMock)
 #     async def test_connect_to_single_server_stdio(
 #         self, mock_refresh, mock_client, mock_session
 #     ):
 #         """Test connecting to a stdio server"""
-#         with patch("mcpomni_connect.client.stdio_client") as mock_stdio_client:
+#         with patch("omnicoreagent.client.stdio_client") as mock_stdio_client:
 #             mock_transport = (AsyncMock(), AsyncMock())
 #             mock_stdio_client.return_value.__aenter__.return_value = mock_transport
 
@@ -133,7 +133,7 @@
 #             mock_stack.enter_async_context.side_effect = [mock_transport, mock_session]
 
 #             with patch(
-#                 "mcpomni_connect.client.AsyncExitStack", return_value=mock_stack
+#                 "omnicoreagent.client.AsyncExitStack", return_value=mock_stack
 #             ) as mock_exit_stack:
 #                 server_info = {
 #                     "name": "server1",
@@ -152,12 +152,12 @@
 #                 mock_refresh.assert_awaited_once()
 
 #     @pytest.mark.asyncio
-#     @patch("mcpomni_connect.client.refresh_capabilities", new_callable=AsyncMock)
+#     @patch("omnicoreagent.client.refresh_capabilities", new_callable=AsyncMock)
 #     async def test_connect_to_single_server_sse(
 #         self, mock_refresh, mock_client, mock_session
 #     ):
 #         """Test connecting to an SSE server"""
-#         with patch("mcpomni_connect.client.sse_client") as mock_sse_client:
+#         with patch("omnicoreagent.client.sse_client") as mock_sse_client:
 #             mock_transport = (AsyncMock(), AsyncMock())
 #             mock_sse_client.return_value.__aenter__.return_value = mock_transport
 
@@ -166,7 +166,7 @@
 #             mock_stack.enter_async_context.side_effect = [mock_transport, mock_session]
 
 #             with patch(
-#                 "mcpomni_connect.client.AsyncExitStack", return_value=mock_stack
+#                 "omnicoreagent.client.AsyncExitStack", return_value=mock_stack
 #             ) as mock_exit_stack:
 #                 server_info = {
 #                     "name": "server2",

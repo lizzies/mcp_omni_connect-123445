@@ -6,7 +6,7 @@ from config import ProductionConfig
 from bash import Bash
 from system_prompt import get_system_prompt
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     ToolRegistry,
     MemoryRouter,
     EventRouter,
@@ -78,7 +78,7 @@ tool_registry = ToolRegistry()
 class DevOpsCopilotRunner:
     def __init__(self):
         self.cfg = CONFIG
-        self.agent: Optional[OmniAgent] = None
+        self.agent: Optional[OmniCoreAgent] = None
         self.bg_service: Optional[BackgroundAgentService] = None
         self.memory_router: Optional[MemoryRouter] = None
         self.event_router: Optional[EventRouter] = None
@@ -162,7 +162,7 @@ class DevOpsCopilotRunner:
 
             return result
 
-        self.agent = OmniAgent(
+        self.agent = OmniCoreAgent(
             name=self.cfg.agent.name,
             system_instruction=self.system_prompt,
             model_config={

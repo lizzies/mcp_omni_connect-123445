@@ -2,13 +2,12 @@
 
 ## Prerequisites
 
-Before installing MCPOmni Connect, ensure you have the following:
+Before installing OmniCoreAgent, ensure you have the following:
 
 !!! info "System Requirements"
     - **Python 3.10+** (Python 3.11+ recommended)
-    - **LLM API key** from any supported provider
+    - **LLM API key** from any supported provider (OpenAI, Anthropic, Google, etc.)
     - **UV package manager** (recommended) or pip
-    - **Redis server** (optional, for persistent memory)
 
 ### Check Python Version
 
@@ -19,7 +18,7 @@ python --version
 
 ### Install UV (Recommended)
 
-UV is the fastest Python package manager and is recommended for MCPOmni Connect:
+UV is faster than pip and handles dependencies more reliably:
 
 === "macOS/Linux"
     ```bash
@@ -36,18 +35,20 @@ UV is the fastest Python package manager and is recommended for MCPOmni Connect:
     pip install uv
     ```
 
+---
+
 ## Installation Methods
 
 ### Method 1: UV (Recommended)
 
 ```bash
-uv add mcpomni-connect
+uv add omnicoreagent
 ```
 
 ### Method 2: pip
 
 ```bash
-pip install mcpomni-connect
+pip install omnicoreagent
 ```
 
 ### Method 3: From Source
@@ -55,70 +56,37 @@ pip install mcpomni-connect
 For development or latest features:
 
 ```bash
-git clone https://github.com/Abiorh001/mcp_omni_connect.git
-cd mcp_omni_connect
+git clone https://github.com/omnirexflora-labs/omnicoreagent.git
+cd omnicoreagent
 uv sync
 ```
 
+---
+
 ## Verify Installation
 
-After installation, verify MCPOmni Connect is correctly installed:
+After installation, verify that you can import the package:
 
 ```bash
-mcpomni_connect --version
+python -c "import omnicoreagent; print(omnicoreagent.__version__)"
 ```
 
-You should see the version number displayed.
-
-## Optional Dependencies
-
-### Redis (For Persistent Memory)
-
-MCPOmni Connect can use Redis for persistent conversation memory:
-
-=== "Ubuntu/Debian"
-    ```bash
-    sudo apt update
-    sudo apt install redis-server
-    sudo systemctl start redis-server
-    sudo systemctl enable redis-server
-    ```
-
-=== "macOS"
-    ```bash
-    brew install redis
-    brew services start redis
-    ```
-
-=== "Windows"
-    Download from [Redis Windows releases](https://github.com/microsoftarchive/redis/releases) or use WSL with Linux instructions.
-
-=== "Docker"
-    ```bash
-    docker run -d --name redis -p 6379:6379 redis:alpine
-    ```
-
-### Verify Redis Connection
-
-```bash
-redis-cli ping
-# Should respond with: PONG
-```
+---
 
 ## Next Steps
 
 Once installation is complete:
 
-1. **[Set up configuration](../configuration/configuration-guide.md)** - Create your `.env` and `servers_config.json` files
-2. **[Follow the Quick Start guide](quick-start.md)** - Get your first MCP connection working
-3. **[Explore operation modes](../user-guide/operation-modes.md)** - Learn about chat, autonomous, and orchestrator modes
+1. **[Follow the Quick Start guide](quick-start.md)** - Build your first agent in under 30 seconds.
+2. **[Explore Core Features](../core-features/omnicoreagent.md)** - Learn about memory, events, and tools.
+3. **[Set up configuration](../configuration/configuration-guide.md)** - Learn about environment variables and agent settings.
 
 ## Troubleshooting Installation
 
 ### Common Issues
 
 !!! failure "Python Version Error"
-    **Error**: `MCPOmni Connect requires Python 3.10+`
+    **Error**: `OmniCoreAgent requires Python 3.10+`
 
     **Solution**: Upgrade your Python version:
     ```bash
@@ -127,7 +95,7 @@ Once installation is complete:
 
     # Use specific Python version with UV
     uv python install 3.11
-    uv add mcpomni-connect
+    uv add omnicoreagent
     ```
 
 !!! failure "Permission Denied"
@@ -135,28 +103,15 @@ Once installation is complete:
 
     **Solution**: Use user installation:
     ```bash
-    pip install --user mcpomni-connect
-    ```
-
-!!! failure "Command Not Found"
-    **Error**: `mcpomni_connect: command not found`
-
-    **Solution**: Add to PATH or use full path:
-    ```bash
-    # Check installation path
-    pip show mcpomni-connect
-
-    # Or run with python -m
-    python -m mcpomni_connect
+    pip install --user omnicoreagent
     ```
 
 ### Getting Help
 
 If you encounter issues:
 
-1. Check the [troubleshooting guide](../configuration/troubleshooting.md)
-2. Search [existing issues](https://github.com/Abiorh001/mcp_omni_connect/issues)
-3. Create a [new issue](https://github.com/Abiorh001/mcp_omni_connect/issues/new) with:
+1. Search [existing issues](https://github.com/omnirexflora-labs/omnicoreagent/issues)
+2. Create a [new issue](https://github.com/omnirexflora-labs/omnicoreagent/issues/new) with:
    - Your operating system
    - Python version
    - Installation method used

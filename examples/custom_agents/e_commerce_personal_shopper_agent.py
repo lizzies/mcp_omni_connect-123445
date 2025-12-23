@@ -10,7 +10,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from omnicoreagent import OmniAgent, MemoryRouter, EventRouter, ToolRegistry
+from omnicoreagent import OmniCoreAgent, MemoryRouter, EventRouter, ToolRegistry
 
 
 class ProductionEcommerceAgent:
@@ -550,7 +550,7 @@ class ProductionEcommerceAgent:
     async def initialize_agent(self):
         """Initialize the production e-commerce agent"""
 
-        ecommerce_agent = OmniAgent(
+        ecommerce_agent = OmniCoreAgent(
             name="ProductionEcommerceShopper",
             system_instruction="""You are a professional e-commerce personal shopper in a production environment.
 

@@ -14,7 +14,7 @@ def mock_config_path(tmp_path):
 
 def test_check_config_exists_new(mock_config_path):
     """Test creating a new config file when it doesn't exist"""
-    with patch("mcpomni_connect.main.Path.cwd", return_value=mock_config_path.parent):
+    with patch("omnicoreagent.main.Path.cwd", return_value=mock_config_path.parent):
         config_path = check_config_exists()
 
         assert config_path == mock_config_path
@@ -56,7 +56,7 @@ def test_check_config_exists_existing(mock_config_path):
     with open(mock_config_path, "w") as f:
         json.dump(existing_config, f)
 
-    with patch("mcpomni_connect.main.Path.cwd", return_value=mock_config_path.parent):
+    with patch("omnicoreagent.main.Path.cwd", return_value=mock_config_path.parent):
         config_path = check_config_exists()
 
         assert config_path == mock_config_path
@@ -77,14 +77,14 @@ async def test_async_main_success():
     mock_cli = Mock()
 
     with (
-        patch("mcpomni_connect.main.check_config_exists") as mock_check_config,
-        patch("mcpomni_connect.main.Configuration", return_value=mock_config),
-        patch("mcpomni_connect.main.MCPClient", return_value=mock_client),
+        patch("omnicoreagent.main.check_config_exists") as mock_check_config,
+        patch("omnicoreagent.main.Configuration", return_value=mock_config),
+        patch("omnicoreagent.main.MCPClient", return_value=mock_client),
         patch(
-            "mcpomni_connect.main.LLMConnection",
+            "omnicoreagent.main.LLMConnection",
             return_value=mock_llm_connection,
         ),
-        patch("mcpomni_connect.main.MCPClientCLI", return_value=mock_cli),
+        patch("omnicoreagent.main.MCPClientCLI", return_value=mock_cli),
     ):
         await async_main()
 
@@ -104,14 +104,14 @@ async def test_async_main_keyboard_interrupt():
     mock_cli.chat_loop.side_effect = KeyboardInterrupt()
 
     with (
-        patch("mcpomni_connect.main.check_config_exists") as mock_check_config,
-        patch("mcpomni_connect.main.Configuration", return_value=mock_config),
-        patch("mcpomni_connect.main.MCPClient", return_value=mock_client),
+        patch("omnicoreagent.main.check_config_exists") as mock_check_config,
+        patch("omnicoreagent.main.Configuration", return_value=mock_config),
+        patch("omnicoreagent.main.MCPClient", return_value=mock_client),
         patch(
-            "mcpomni_connect.main.LLMConnection",
+            "omnicoreagent.main.LLMConnection",
             return_value=mock_llm_connection,
         ),
-        patch("mcpomni_connect.main.MCPClientCLI", return_value=mock_cli),
+        patch("omnicoreagent.main.MCPClientCLI", return_value=mock_cli),
     ):
         await async_main()
 
@@ -131,14 +131,14 @@ async def test_async_main_error():
     mock_cli.chat_loop.side_effect = Exception("Test error")
 
     with (
-        patch("mcpomni_connect.main.check_config_exists") as mock_check_config,
-        patch("mcpomni_connect.main.Configuration", return_value=mock_config),
-        patch("mcpomni_connect.main.MCPClient", return_value=mock_client),
+        patch("omnicoreagent.main.check_config_exists") as mock_check_config,
+        patch("omnicoreagent.main.Configuration", return_value=mock_config),
+        patch("omnicoreagent.main.MCPClient", return_value=mock_client),
         patch(
-            "mcpomni_connect.main.LLMConnection",
+            "omnicoreagent.main.LLMConnection",
             return_value=mock_llm_connection,
         ),
-        patch("mcpomni_connect.main.MCPClientCLI", return_value=mock_cli),
+        patch("omnicoreagent.main.MCPClientCLI", return_value=mock_cli),
     ):
         await async_main()
 
@@ -154,7 +154,7 @@ def test_main():
     from omnicoreagent.mcp_omni_connect.main import main
 
     with patch(
-        "mcpomni_connect.main.async_main", new_callable=AsyncMock
+        "omnicoreagent.main.async_main", new_callable=AsyncMock
     ) as mock_async_main:
         main()
         mock_async_main.assert_called_once()

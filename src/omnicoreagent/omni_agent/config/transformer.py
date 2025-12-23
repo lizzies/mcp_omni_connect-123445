@@ -4,6 +4,7 @@ from dataclasses import dataclass, asdict, field
 from enum import Enum
 import uuid
 from omnicoreagent.core.utils import logger
+from omnicoreagent.core.constants import SUPPORTED_MODELS_PROVIDERS
 from decouple import config
 
 
@@ -54,7 +55,7 @@ class MCPToolConfig:
 class AgentConfig:
     """User-friendly agent configuration"""
 
-    agent_name: str = "OmniAgent"
+    agent_name: str = "OmniCoreAgent"
     tool_call_timeout: int = 30
     max_steps: int = 15
     request_limit: int = 0
@@ -71,16 +72,7 @@ class ConfigTransformer:
     """Transforms user-friendly configuration to internal format"""
 
     def __init__(self):
-        self.supported_providers = {
-            "openai": "openai",
-            "anthropic": "anthropic",
-            "groq": "groq",
-            "ollama": "ollama",
-            "azure": "azure",
-            "gemini": "gemini",
-            "deepseek": "deepseek",
-            "mistral": "mistral",
-        }
+        self.supported_providers = SUPPORTED_MODELS_PROVIDERS
 
         self.supported_transports = {
             TransportType.STDIO: self._transform_stdio_config,

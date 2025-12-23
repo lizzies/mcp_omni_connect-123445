@@ -2,8 +2,8 @@
 # import asyncio
 # import json
 # from unittest.mock import AsyncMock, MagicMock
-# from mcpomni_connect.agents.orchestrator import OrchestratorAgent
-# from mcpomni_connect.agents.types import AgentConfig, ParsedResponse
+# from omnicoreagent.agents.orchestrator import OrchestratorAgent
+# from omnicoreagent.agents.types import AgentConfig, ParsedResponse
 
 # @pytest.fixture
 # def agent_config():

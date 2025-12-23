@@ -1,6 +1,6 @@
 # Memory Management
 
-MCPOmni Connect provides flexible memory management through Redis persistence and file-based conversation history, allowing you to maintain context across sessions and save important conversations.
+OmniCoreAgent provides flexible memory management through Redis persistence and file-based conversation history, allowing you to maintain context across sessions and save important conversations.
 
 ## Memory Types
 
@@ -14,7 +14,7 @@ MCPOmni Connect provides flexible memory management through Redis persistence an
 
 ### Overview
 
-Redis memory provides automatic conversation persistence across MCPOmni Connect sessions, maintaining context and conversation history even after restarts.
+Redis memory provides automatic conversation persistence across OmniCoreAgent sessions, maintaining context and conversation history even after restarts.
 
 ### Setup Redis
 
@@ -83,7 +83,7 @@ Session memory will be cleared on restart.
 
 **Output:**
 ```
-🚀 MCPOmni Connect Status:
+🚀 OmniCoreAgent Status:
 - Mode: CHAT
 - Connected Servers: 3
 - Memory: ENABLED (Redis localhost:6379)
@@ -112,11 +112,11 @@ AI: Hello! I'd be happy to help with your Python project. What specific
 > I need to analyze some CSV files
 AI: Great! I can help you analyze CSV files. Do you have the files ready?
 
-# Exit MCPOmni Connect
+# Exit OmniCoreAgent
 
 # Session 2 (later)
-> mcpomni_connect
-🚀 MCPOmni Connect - Universal Gateway to MCP Servers
+> omnicoreagent
+🚀 OmniCoreAgent - Universal Gateway to MCP Servers
 📚 Restored conversation from Redis (5 messages)
 
 > What were we discussing?
@@ -469,7 +469,7 @@ Organize conversations by project:
 
 ### Automatic Memory Management
 
-MCPOmni Connect automatically:
+OmniCoreAgent automatically:
 
 1. **Prunes Old Messages**: Removes messages beyond token limits
 2. **Compresses Context**: Summarizes old conversations

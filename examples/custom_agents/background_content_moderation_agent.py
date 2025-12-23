@@ -9,7 +9,7 @@ import asyncio
 import hashlib
 from datetime import datetime
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     BackgroundAgentManager,
@@ -34,7 +34,7 @@ def scan_directory_for_new_content(directory: str) -> str:
             return f"Directory not found: {directory}"
 
         # State file to track what we've seen
-        state_file = os.path.expanduser("~/.omniagent/moderation_state.json")
+        state_file = os.path.expanduser("~/.omni_core_agent/moderation_state.json")
         os.makedirs(os.path.dirname(state_file), exist_ok=True)
 
         # Load previous state
@@ -224,7 +224,7 @@ def flag_content(filepath: str, reason: str, severity: str = "medium") -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/moderation.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/moderation.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         conn = sqlite3.connect(db_path)
@@ -274,7 +274,7 @@ def approve_content(filepath: str, notes: str = "") -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/moderation.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/moderation.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         conn = sqlite3.connect(db_path)
@@ -308,7 +308,7 @@ def get_flagged_content(status: str = "pending", limit: int = 10) -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/moderation.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/moderation.db")
 
         if not os.path.exists(db_path):
             return "No moderation database found."
@@ -357,7 +357,7 @@ def get_moderation_stats() -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/moderation.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/moderation.db")
 
         if not os.path.exists(db_path):
             return "No moderation database found."
@@ -422,7 +422,7 @@ def remove_violating_content(filepath: str, reason: str) -> str:
             return f"File not found: {filepath}"
 
         # Create quarantine directory
-        quarantine_dir = os.path.expanduser("~/.omniagent/quarantine")
+        quarantine_dir = os.path.expanduser("~/.OmniCoreAgent/quarantine")
         os.makedirs(quarantine_dir, exist_ok=True)
 
         # Move file to quarantine
@@ -435,7 +435,7 @@ def remove_violating_content(filepath: str, reason: str) -> str:
         # Log the action
         import sqlite3
 
-        db_path = os.path.expanduser("~/.omniagent/moderation.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/moderation.db")
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
@@ -467,7 +467,7 @@ def create_moderation_report() -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/moderation.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/moderation.db")
 
         if not os.path.exists(db_path):
             return "No moderation data available."
@@ -714,7 +714,7 @@ async def setup_and_run_agent():
     print("Step 5: Monitoring configuration:")
     print(f"  Directory: {test_dir}")
     print(f"  Files to monitor: *.txt, *.md, *.json, *.py, *.js, *.html")
-    print(f"  Database: ~/.omniagent/moderation.db")
+    print(f"  Database: ~/.OmniCoreAgent/moderation.db")
     print()
 
     print("=" * 80)
