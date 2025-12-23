@@ -86,7 +86,6 @@ class MemoryRouter:
         self, session_id: str, agent_name: str = None
     ) -> list[dict[str, Any]]:
         messages = await self.memory_store.get_messages(session_id, agent_name)
-        # convert from msg_metadata to metadata
         for message in messages:
             message["metadata"] = message.pop("msg_metadata", None)
         return messages
@@ -113,7 +112,6 @@ class MemoryRouter:
         try:
             import json
 
-            # Get all messages from all sessions
             all_messages = {}
             for session_id in self.memory_store.sessions_history.keys():
                 messages = await self.get_messages(session_id)
@@ -138,7 +136,6 @@ class MemoryRouter:
             with open(file_path, "r") as f:
                 all_messages = json.load(f)
 
-            # Restore messages to memory store
             for session_id, messages in all_messages.items():
                 for message in messages:
                     await self.store_message(

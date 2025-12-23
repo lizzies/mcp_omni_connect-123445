@@ -34,8 +34,8 @@ class OmniAgent:
         system_instruction: str,
         model_config: Union[Dict[str, Any], ModelConfig],
         mcp_tools: List[Union[Dict[str, Any], MCPToolConfig]] = None,
-        local_tools: Optional[Any] = None,  # LocalToolsIntegration instance
-        sub_agents: Optional[Dict[str, Any]] = None,  # SubAgentsIntegration instance
+        local_tools: Optional[Any] = None,
+        sub_agents: Optional[Dict[str, Any]] = None,
         agent_config: Optional[Union[Dict[str, Any], AgentConfig]] = None,
         memory_router: Optional[MemoryRouter] = None,
         event_router: Optional[EventRouter] = None,
@@ -89,7 +89,6 @@ class OmniAgent:
             agent_config=agent_config_with_name,
         )
 
-        # Save to hidden location
         self._save_config_hidden(internal_config)
 
         return internal_config
@@ -134,7 +133,6 @@ class OmniAgent:
         """Create the appropriate agent based on configuration"""
         shared_config = Configuration()
 
-        # Initialize MCP client only if MCP tools are provided
         if self.mcp_tools:
             self.mcp_client = MCPClient(
                 config=shared_config,
@@ -161,7 +159,9 @@ class OmniAgent:
         if self.local_tools:
             if self.agent.enable_advanced_tool_use:
                 advance_tools_manager = AdvanceToolsUse()
-                advance_tools_manager.load_and_process_tools(local_tools=self.local_tools)
+                advance_tools_manager.load_and_process_tools(
+                    local_tools=self.local_tools
+                )
 
     def generate_session_id(self) -> str:
         """Generate a new session ID for the session"""
@@ -171,7 +171,6 @@ class OmniAgent:
         """Connect to MCP servers if MCP tools are configured"""
         if self.mcp_client and self.mcp_tools:
             await self.mcp_client.connect_to_servers(self.mcp_client.config_filename)
-            # connect all the tools to the tools knowledge base if its enabled
             if self.agent.enable_advanced_tool_use:
                 mcp_tools = self.mcp_client.available_tools if self.mcp_client else {}
                 advance_tools_manager = AdvanceToolsUse()
@@ -192,7 +191,6 @@ class OmniAgent:
         Returns:
             Dict containing response and session_id
         """
-        # Generate session ID if not provided
         if not session_id:
             session_id = self.generate_session_id()
 
@@ -320,7 +318,7 @@ class OmniAgent:
                 hidden_dir.rmdir()
         except Exception:
             pass
-    
+
     async def cleanup_mcp_servers(self):
         """Clean up MCP servers without removing the agent and the config"""
         if self.mcp_client:

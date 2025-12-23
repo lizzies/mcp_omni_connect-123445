@@ -10,7 +10,7 @@ class TaskRegistry:
     """Registry for storing and managing task definitions."""
 
     def __init__(self):
-        self._tasks: Dict[str, Dict] = {}  # Replace with SQLite/Redis later
+        self._tasks: Dict[str, Dict] = {}
 
     def register(self, agent_id: str, config: Dict):
         """Register a new task configuration."""

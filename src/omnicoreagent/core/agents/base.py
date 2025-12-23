@@ -74,6 +74,7 @@ from omnicoreagent.core.tools.memory_tool.memory_tool import (
 )
 from omnicoreagent.core.skills.tools import build_skill_tools
 
+
 class BaseReactAgent:
     """Autonomous agent implementing the ReAct paradigm for task solving through iterative reasoning and tool usage."""
 
@@ -89,7 +90,6 @@ class BaseReactAgent:
         enable_agent_skills: bool = False,
     ):
         self.agent_name = agent_name
-        # Enforce minimum 5 steps to allow proper tool usage and reasoning
         self.max_steps = max(max_steps, 5)
         if max_steps < 5:
             logger.warning(
@@ -97,7 +97,6 @@ class BaseReactAgent:
             )
         self.tool_call_timeout = tool_call_timeout
 
-        # Production-ready limits: 0 means unlimited (skip checks)
         self.request_limit = request_limit
         self.total_tokens_limit = total_tokens_limit
         self._limits_enabled = request_limit > 0 or total_tokens_limit > 0
@@ -153,7 +152,6 @@ class BaseReactAgent:
     ) -> ParsedResponse:
         """Parse LLM response to extract a final answer, tool call, or agent call using XML format only."""
         try:
-            # Emit agent thoughts
             agent_thoughts = re.search(r"<thought>(.*?)</thought>", response, re.DOTALL)
             if agent_thoughts:
                 event = Event(
@@ -168,9 +166,6 @@ class BaseReactAgent:
                         event_router(session_id=session_id, event=event)
                     )
 
-            # -----------------------
-            # Parse tool calls
-            # -----------------------
             tool_calls = []
             tool_call_blocks = []
 
@@ -233,9 +228,6 @@ class BaseReactAgent:
                     action=True, data=json.dumps(tool_calls), tool_calls=True
                 )
 
-            # -----------------------
-            # Parse agent calls
-            # -----------------------
             agent_calls = []
             agent_call_blocks = []
 
@@ -300,22 +292,17 @@ class BaseReactAgent:
                     action=True, data=json.dumps(agent_calls), agent_calls=True
                 )
 
-            # -----------------------
-            # Parse final answer
-            # -----------------------
             final_answer_match = re.search(
                 r"<final_answer>(.*?)</final_answer>", response, re.DOTALL
             )
             if final_answer_match:
                 return ParsedResponse(answer=final_answer_match.group(1).strip())
 
-            # Check if response contains XML tags but not recognized
             if "<" in response and ">" in response:
                 return ParsedResponse(
                     error="Response contains XML but not in required format. Use <thought>, <final_answer> or during tool calls use <tool_call> tag or <agent_call> tag during agent calls."
                 )
 
-            # No XML at all
             return ParsedResponse(
                 error="Response must use XML format. Wrap in <thought> and <final_answer> or call  pigment tag or <agent_call> tag during agent calls. or <tool_calls> tag during tool calls."
             )
@@ -344,14 +331,12 @@ class BaseReactAgent:
             Message.model_validate(msg) if isinstance(msg, dict) else msg
             for msg in short_term_memory_message_history
         ]
-        # get the session state to be use
         session_state = self._get_session_state(session_id=session_id, debug=debug)
         for message in validated_messages:
             role = message.role
             metadata = message.metadata
 
             if role == "user":
-                # Only include real user messages — skip system-generated observations
                 if not message.content.strip().startswith("<observations>"):
                     self._try_flush_pending(session_id=session_id, debug=debug)
                     session_state.messages.append(
@@ -415,7 +400,9 @@ class BaseReactAgent:
         sub_agents: list = None,
     ) -> ToolError | list[ToolCallResult]:
         try:
-            local_tools = await self.process_local_tools(local_tools=local_tools, local_tool_verification=True)
+            local_tools = await self.process_local_tools(
+                local_tools=local_tools, local_tool_verification=True
+            )
             actions = json.loads(parsed_response.data)
             if not isinstance(actions, list):
                 actions = [actions]
@@ -427,27 +414,24 @@ class BaseReactAgent:
                 if tool_name == "tools_retriever":
                     mcp_tools = None
                 tool_args = action.get("parameters", {})
-                # helps redirect the agent if it treid to call sub agent using tool calling format
                 if sub_agents:
-                   sub_agent_names = [sub_agent.name for sub_agent in sub_agents]
-                   if tool_name in sub_agent_names:
+                    sub_agent_names = [sub_agent.name for sub_agent in sub_agents]
+                    if tool_name in sub_agent_names:
                         return ToolError(
                             observation=(
-                            f"INVOCATION ERROR: '{tool_name}' is a sub-agent, not a tool.\n\n"
-                            f"❌ You used (WRONG):\n"
-                            f"   <tool_call><tool_name>{tool_name}</tool_name><parameters>...</parameters></tool_call>\n\n"
-                            f"✓ Must use (CORRECT):\n"
-                            f"   <agent_call><agent_name>{tool_name}</agent_name><parameters>...</parameters></agent_call>\n\n"
-                            f"ACTION REQUIRED:\n"
-                            f"1. Check AVAILABLE SUB AGENT REGISTRY for '{tool_name}' parameter requirements\n"
-                            f"2. Retry using <agent_call> with <agent_name> tags\n"
-                            f"3. Ensure parameters match registry definition exactly"
-                        ),
+                                f"INVOCATION ERROR: '{tool_name}' is a sub-agent, not a tool.\n\n"
+                                f"❌ You used (WRONG):\n"
+                                f"   <tool_call><tool_name>{tool_name}</tool_name><parameters>...</parameters></tool_call>\n\n"
+                                f"✓ Must use (CORRECT):\n"
+                                f"   <agent_call><agent_name>{tool_name}</agent_name><parameters>...</parameters></agent_call>\n\n"
+                                f"ACTION REQUIRED:\n"
+                                f"1. Check AVAILABLE SUB AGENT REGISTRY for '{tool_name}' parameter requirements\n"
+                                f"2. Retry using <agent_call> with <agent_name> tags\n"
+                                f"3. Ensure parameters match registry definition exactly"
+                            ),
                             tool_name="N/A",
                             tool_args=tool_args,
                         )
-                        
-                       
 
                 if not tool_name:
                     return ToolError(
@@ -460,7 +444,6 @@ class BaseReactAgent:
                 tool_executor = None
                 tool_data = {}
 
-                # Check MCP tools
                 if mcp_tools:
                     for server_name, tools in mcp_tools.items():
                         for tool in tools:
@@ -484,7 +467,6 @@ class BaseReactAgent:
                         if mcp_tool_found:
                             break
 
-                # Check local tools
                 if not mcp_tool_found and local_tools:
                     local_tool_handler = LocalToolHandler(local_tools=local_tools)
                     tool_executor = ToolExecutor(tool_handler=local_tool_handler)
@@ -593,7 +575,6 @@ class BaseReactAgent:
                 for e in parsed.get("errors", []):
                     raw_results.append({**e, "status": "error"})
             else:
-                # Single-tool result fallback
                 raw_results = [parsed]
 
             for item in raw_results:
@@ -604,7 +585,6 @@ class BaseReactAgent:
                 data = item.get("data")
                 message = item.get("message") or item.get("error")
 
-                # Handle stringified JSON in data
                 if isinstance(data, str):
                     try:
                         data = json.loads(data)
@@ -668,7 +648,6 @@ class BaseReactAgent:
         event_router: Callable[[str, Event], Any] = None,
         sub_agents: list = None,
     ):
-        # get the session state to be use
         session_state = self._get_session_state(session_id=session_id, debug=debug)
 
         tool_call_result = await self.resolve_tool_call_request(
@@ -682,7 +661,6 @@ class BaseReactAgent:
         tools_results = []
         obs_text = None
 
-        # Early exit on tool validation failure
         if isinstance(tool_call_result, ToolError):
             tool_errors = (
                 tool_call_result.errors
@@ -729,7 +707,6 @@ class BaseReactAgent:
                 f"args={combined_tool_args} -> {obs_text}"
             )
 
-            # Populate tools_results for validation errors
             for single_tool in tool_errors:
                 tools_results.append(
                     {
@@ -760,7 +737,6 @@ class BaseReactAgent:
                 ],
             )
 
-            # Add tool call started event
             event = Event(
                 type=EventType.TOOL_CALL_STARTED,
                 payload=ToolCallStartedPayload(
@@ -796,7 +772,6 @@ class BaseReactAgent:
                         session_id=session_id,
                     )
 
-                # Parse tool output into structured observation
                 observation = await self.parse_tool_observation(tool_output)
 
                 tools_results = observation.get("tools_results", [])
@@ -804,11 +779,9 @@ class BaseReactAgent:
                 success_count = 0
                 error_count = 0
 
-                # Normalize tool_call_result into list for safety
                 if not isinstance(tool_call_result, (list, tuple)):
                     tool_call_result = [tool_call_result]
 
-                # Process each tool result
                 tool_counter = defaultdict(int)
                 seen_tools: set[str] = set()
                 for single_tool, result in zip(tool_call_result, tools_results):
@@ -817,11 +790,9 @@ class BaseReactAgent:
                     status = result.get("status", "unknown")
                     data = result.get("data")
                     message = result.get("message", "")
-                    # Increment counter for repeated tool names
                     tool_counter[tool_name] += 1
                     tool_call_generated_id = f"{tool_name}#{tool_counter[tool_name]}"
                     display_value = data if data is not None else message
-                    # Record in loop detector only once per batch
                     if tool_name not in seen_tools:
                         seen_tools.add(tool_name)
                         session_state.loop_detector.record_tool_call(
@@ -834,7 +805,6 @@ class BaseReactAgent:
                         obs_lines.append(f"{tool_call_generated_id}: {display_value}")
                         success_count += 1
                     elif status == "error":
-                        # Include detailed reason if available
                         reason = display_value or "Unknown error occurred."
                         obs_lines.append(f"{tool_call_generated_id} ERROR: {reason}")
                         error_count += 1
@@ -843,7 +813,6 @@ class BaseReactAgent:
                             f"{tool_call_generated_id}: Unexpected status '{status}'"
                         )
                         error_count += 1
-                # Clear the seen_tools after finishing the batch
                 seen_tools.clear()
                 if success_count == len(tools_results):
                     status = "success"
@@ -853,14 +822,12 @@ class BaseReactAgent:
                     obs_text = "Partial success:\n" + "\n\n".join(obs_lines)
                 elif error_count == len(tools_results):
                     status = "error"
-                    # Combine all messages into one readable explanation
                     error_details = "\n\n".join(obs_lines)
                     obs_text = f"Tool execution failed completely:\n{error_details}"
                 else:
                     status = observation.get("status", "unknown")
                     obs_text = "\n\n".join(obs_lines) or "No valid tool results."
 
-                # Handle tool call result event
                 event = Event(
                     type=EventType.TOOL_CALL_RESULT,
                     payload=ToolCallResultPayload(
@@ -888,7 +855,6 @@ class BaseReactAgent:
                         obs_text,
                     )
 
-                # Populate tools_results for timeout
                 for single_tool in tool_call_result:
                     tools_results.append(
                         {
@@ -933,7 +899,6 @@ class BaseReactAgent:
                         obs_text,
                     )
 
-                # Populate tools_results for generic exceptions
                 for single_tool in tool_call_result:
                     tools_results.append(
                         {
@@ -967,7 +932,6 @@ class BaseReactAgent:
                         event_router(session_id=session_id, event=event)
                     )
 
-        # Debug and final observation handling
         if debug:
             show_tool_response(
                 agent_name=self.agent_name,
@@ -1037,7 +1001,6 @@ class BaseReactAgent:
                     "\nYou MUST respond with <final_answer> tags now.\n"
                 )
 
-                # handle loop detection event
                 event = Event(
                     type=EventType.TOOL_CALL_ERROR,
                     payload=ToolCallErrorPayload(
@@ -1064,7 +1027,6 @@ class BaseReactAgent:
                 session_state.loop_detector.reset(tool_name)
 
     async def reset_system_prompt(self, messages: list, system_prompt: str):
-        # Reset system prompt and keep all messages
         old_messages = messages[1:]
         messages = [Message(role="system", content=system_prompt)]
         messages.extend(old_messages)
@@ -1075,7 +1037,6 @@ class BaseReactAgent:
         self, new_state: AgentState, session_id: str, debug: bool
     ):
         """Context manager to change the agent session state"""
-        # get the session state to be use
         session_state = self._get_session_state(session_id=session_id, debug=debug)
         if not isinstance(new_state, AgentState):
             raise ValueError(f"Invalid agent state: {new_state}")
@@ -1090,8 +1051,9 @@ class BaseReactAgent:
         finally:
             session_state.state = previous_state
 
-    async def process_local_tools(self, local_tools: Any = None, local_tool_verification: bool = False):
-        # Process local tools
+    async def process_local_tools(
+        self, local_tools: Any = None, local_tool_verification: bool = False
+    ):
         if self.enable_advanced_tool_use:
             if not local_tool_verification:
                 local_tools = self.register_internal_tool
@@ -1103,7 +1065,7 @@ class BaseReactAgent:
                     await build_tool_registry_advance_tools_use(
                         registry=local_tools,
                     )
-                
+
         if self.memory_tool_backend:
             if local_tools:
                 build_tool_registry_memory_tool(
@@ -1129,7 +1091,7 @@ class BaseReactAgent:
                     registry=local_tools,
                 )
         return local_tools
-    
+
     async def get_tools_registry(
         self, mcp_tools: dict = None, local_tools: Any = None
     ) -> str:
@@ -1139,13 +1101,11 @@ class BaseReactAgent:
             """Format parameter type with nested structure details."""
             p_type = param_info.get("type", "any")
 
-            # Handle array types
             if p_type == "array":
                 items = param_info.get("items", {})
                 if items:
                     item_type = items.get("type", "any")
                     if item_type == "object":
-                        # Array of objects - show the object structure
                         props = items.get("properties", {})
                         if props:
                             fields = ", ".join(
@@ -1160,7 +1120,6 @@ class BaseReactAgent:
                         return f"array of {item_type}s"
                 return "array"
 
-            # Handle object types
             elif p_type == "object":
                 props = param_info.get("properties", {})
                 if props:
@@ -1177,13 +1136,11 @@ class BaseReactAgent:
             p_desc = param_info.get("description", "").replace("\n", " ").strip()
             p_type = param_info.get("type", "any")
 
-            # Add structure hints for complex types
             if p_type == "array":
                 items = param_info.get("items", {})
                 if items.get("type") == "object":
                     props = items.get("properties", {})
                     if props:
-                        # Build example structure
                         example_fields = []
                         for k, v in props.items():
                             v_type = v.get("type", "any")
@@ -1205,9 +1162,7 @@ class BaseReactAgent:
             return p_desc if p_desc else "No description"
 
         try:
-            local_tools = await self.process_local_tools(
-                local_tools=local_tools
-            )
+            local_tools = await self.process_local_tools(local_tools=local_tools)
             if local_tools:
                 local_tools_list = local_tools.get_available_tools()
                 if local_tools_list:
@@ -1232,7 +1187,6 @@ class BaseReactAgent:
                                         f"  - {param_name}: {p_type}{is_req} — {p_desc}"
                                     )
 
-            # Process MCP tools
             if mcp_tools and not self.enable_advanced_tool_use:
                 for server_name, tools in mcp_tools.items():
                     if not tools:
@@ -1283,12 +1237,10 @@ class BaseReactAgent:
         """
         tasks = {}
 
-        # Tool registry
         tasks["tools"] = self.get_tools_registry(
             mcp_tools=mcp_tools, local_tools=local_tools
         )
 
-        # Working memory: load prior history and load to session_state.messages
         tasks["history"] = self.update_llm_working_memory(
             message_history=message_history,
             session_id=session_id,
@@ -1309,56 +1261,45 @@ class BaseReactAgent:
             logger.warning(
                 "Timeout during initial message preparation (20s). Proceeding with defaults."
             )
-            # fallback results on timeout
             results = ["No tools available", None]
 
         for r in results:
             if isinstance(r, BaseException):
                 logger.error(f"prepare_initial_messages error: {r}", exc_info=True)
 
-        # Unpack results
         tools_section = (
             results[0]
             if not isinstance(results[0], BaseException)
             else "No tools available"
         )
 
-        # Build system prompt with logical layering
-        updated_system_prompt = system_prompt  # Base identity and behavior
+        updated_system_prompt = system_prompt
 
-        # Layer 1: Core Cognitive Capabilities (HOW the agent thinks/operates)
         if self.enable_advanced_tool_use:
             updated_system_prompt += f"\n{tools_retriever_additional_prompt}"
 
         if self.enable_agent_skills and self.skill_manager:
             updated_system_prompt += f"\n{agent_skills_additional_prompt}"
 
-        # Layer 2: Team Structure (WHO the agent can work with)
         if sub_agents:
             updated_system_prompt += f"\n{sub_agents_additional_prompt}"
 
-        # Layer 3: Available Resources (WHAT tools are available)
-        # Memory tool (just another tool, like file storage)
         if self.memory_tool_backend:
             updated_system_prompt += f"\n{memory_tool_additional_prompt}"
 
-        # Skills registry (individual capabilities)
         if self.enable_agent_skills and self.skill_manager:
             skills_context = self.skill_manager.get_skills_context_xml()
             if skills_context:
                 updated_system_prompt += f"\n[AVAILABLE SKILLS]\n{skills_context}"
 
-        # Sub-agents registry (team members)
         if sub_agents:
             sub_agents_registry = await self.sub_agents_registry(sub_agents)
             updated_system_prompt += (
                 f"\n[AVAILABLE SUB AGENTS REGISTRY]\n{sub_agents_registry}"
             )
 
-        # Tools registry (external integrations including memory file access)
         updated_system_prompt += f"\n[AVAILABLE TOOLS REGISTRY]\n{tools_section}"
 
-        # Insert system prompt at index 0
         session_state.messages.insert(
             0, Message(role="system", content=updated_system_prompt)
         )
@@ -1410,7 +1351,6 @@ class BaseReactAgent:
                     f"Error processing agent {getattr(agent, 'name', 'unknown')}: {e}"
                 )
 
-        # Format as readable JSON-like structure
         output_lines = [
             "════════════════════════════════════════════════════════════",
             "AVAILABLE SUB-AGENTS REGISTRY",
@@ -1476,7 +1416,6 @@ class BaseReactAgent:
             self.background_task_manager.run_background_strict(
                 event_router(session_id=session_id, event=event)
             )
-        # Add assistant message to history
         metadata = {"agent_calls": agent_calls}
         await add_message_to_history(
             role="assistant",
@@ -1486,7 +1425,6 @@ class BaseReactAgent:
         )
         session_state.messages.append(Message(role="assistant", content=response))
 
-        # Parse agent calls if string
         if isinstance(agent_calls, str):
             agent_calls = json.loads(agent_calls)
 
@@ -1501,15 +1439,12 @@ class BaseReactAgent:
                 params = call.get("parameters", {})
                 kwargs = build_kwargs(agent, params)
 
-                # Connect MCP if needed (part of this agent's task)
                 if hasattr(agent, "mcp_tools") and agent.mcp_tools:
                     logger.info(f"Connecting MCP servers for {agent_name}...")
                     await agent.connect_mcp_servers()
 
-                # Run the agent
                 logger.info(f"Running sub-agent: {agent_name}")
                 result = await agent.run(**kwargs)
-                # cleaned the mcp server
                 await agent.cleanup_mcp_servers()
                 return agent_name, result
 
@@ -1517,19 +1452,16 @@ class BaseReactAgent:
                 logger.error(f"Error executing agent {agent_name}: {e}", exc_info=True)
                 return agent_name, e
 
-        # Execute all agents truly concurrently
         logger.info(
             f"Executing {len(agent_calls)} sub-agents with concurrent MCP connections..."
         )
         tasks = [execute_single_agent(call) for call in agent_calls]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Process results into observations
         observations = []
 
         for result in results:
             if isinstance(result, Exception):
-                # Top-level exception (shouldn't happen with return_exceptions=True)
                 logger.error(f"Unexpected top-level exception: {result}")
                 obs = {
                     "agent_name": "unknown",
@@ -1541,7 +1473,6 @@ class BaseReactAgent:
                 agent_name, obs_data = result
 
                 if isinstance(obs_data, Exception):
-                    # Agent execution failed
                     logger.error(f"Agent {agent_name} execution failed: {obs_data}")
                     obs = {
                         "agent_name": agent_name,
@@ -1565,9 +1496,7 @@ class BaseReactAgent:
                             event_router(session_id=session_id, event=event)
                         )
                 else:
-                    # Agent execution succeeded - extract the actual response
                     if isinstance(obs_data, dict):
-                        # Extract response from dict (handles your sub-agent return format)
                         agent_response = obs_data.get(
                             "response", obs_data.get("output", str(obs_data))
                         )
@@ -1583,7 +1512,6 @@ class BaseReactAgent:
                             "output": obs_data,
                         }
                     else:
-                        # Fallback for other types
                         obs = {
                             "agent_name": agent_name,
                             "status": "success",
@@ -1608,7 +1536,6 @@ class BaseReactAgent:
                             event_router(session_id=session_id, event=event)
                         )
 
-        # Build properly formatted XML observation block
         xml_obs_block = build_sub_agents_observation_xml(observations)
         agent_call_result = {
             "agent_name": self.agent_name,
@@ -1619,7 +1546,6 @@ class BaseReactAgent:
         if debug:
             show_sub_agent_call_result(agent_call_result)
 
-        # Add observations to message history
         session_state.messages.append(Message(role="user", content=xml_obs_block))
         await add_message_to_history(
             role="user",
@@ -1647,14 +1573,12 @@ class BaseReactAgent:
         """Execute ReAct loop with JSON communication
         kwargs: if mcp is enbale then it will be sessions and availables_tools else it will be local_tools
         """
-        # get the session state to be use it must be new at all time
         session_state = self._get_session_state(session_id=session_id, debug=debug)
         session_state.messages = []
         session_state.assistant_with_tool_calls = None
         session_state.pending_tool_responses = []
         session_state.loop_detector.reset()
 
-        # handle start of agent run
         event = Event(
             type=EventType.USER_MESSAGE,
             payload=UserMessagePayload(
@@ -1684,7 +1608,6 @@ class BaseReactAgent:
             debug=debug,
             sub_agents=sub_agents,
         )
-        # check if the agent is in a valid state to run
         if session_state.state not in [
             AgentState.IDLE,
             AgentState.ERROR,
@@ -1693,7 +1616,6 @@ class BaseReactAgent:
                 f"Agent is not in a valid state to run: {session_state.state}"
             )
 
-        # set the agent state to running
         async with self.agent_session_state_context(
             new_state=AgentState.RUNNING, session_id=session_id, debug=debug
         ):
@@ -1703,7 +1625,6 @@ class BaseReactAgent:
                 session_state.state not in [AgentState.FINISHED]
                 and current_steps < self.max_steps
             ):
-                # logger.info(f"history: {(session_state.messages)}")
                 if debug:
                     logger.info(
                         f"Sending {len(session_state.messages)} messages to LLM"
@@ -1721,7 +1642,6 @@ class BaseReactAgent:
                     response = await make_llm_call()
 
                     if response:
-                        # handle agent response event
                         event = Event(
                             type=EventType.AGENT_MESSAGE,
                             payload=AgentMessagePayload(
@@ -1743,11 +1663,8 @@ class BaseReactAgent:
                             )
                             usage.incr(request_usage)
 
-                            # Only enforce limits if they're enabled
                             if self._limits_enabled:
-                                # Check if we've exceeded token limits
                                 self.usage_limits.check_tokens(usage)
-                                # Show remaining resources
                                 remaining_tokens = self.usage_limits.remaining_tokens(
                                     usage
                                 )
@@ -1776,7 +1693,6 @@ class BaseReactAgent:
                                         f"Remaining Tokens: {remaining_tokens}"
                                     )
                             else:
-                                # Just log usage without limits
                                 if debug:
                                     logger.info(
                                         f"Usage recorded (limits disabled): "
@@ -1808,7 +1724,6 @@ class BaseReactAgent:
                 )
                 if debug:
                     logger.info(f"current steps: {current_steps}")
-                # check for final answer
                 if parsed_response.answer is not None:
                     last_valid_response = parsed_response.answer
 
@@ -1819,7 +1734,6 @@ class BaseReactAgent:
                         )
                     )
 
-                    # handle final answer event
                     event = Event(
                         type=EventType.FINAL_ANSWER,
                         payload=FinalAnswerPayload(
@@ -1841,9 +1755,7 @@ class BaseReactAgent:
                     session_state.state = AgentState.FINISHED
                     return parsed_response.answer
 
-                # check for action
                 if parsed_response.action is not None:
-                    # check action first to know if it is a sub-agent or tool
                     if parsed_response.agent_calls is not None:
                         agent_calls = parsed_response.data
 
@@ -1862,7 +1774,7 @@ class BaseReactAgent:
 
                         await execute_sub_agent_calls()
                     else:
-                        # Execute the action
+
                         @track("action_execution")
                         async def execute_action():
                             await self.act(
@@ -1883,7 +1795,6 @@ class BaseReactAgent:
 
                 if parsed_response.error is not None:
                     logger.error(f"Error in parsed response: {parsed_response.error}")
-                    # we need to continue the loop if there is an error in parsing
                     session_state.messages.append(
                         Message(
                             role="user",
@@ -1895,19 +1806,15 @@ class BaseReactAgent:
                         )
                     )
                     continue
-                # check for stuck state
                 if current_steps >= self.max_steps:
                     session_state.state = AgentState.STUCK
                     if last_valid_response:
-                        # Prepend max steps context for judge evaluation
                         max_steps_context = f"[SYSTEM_CONTEXT: MAX_STEPS_REACHED - Agent hit {self.max_steps} step limit]\n\n"
                         return max_steps_context + last_valid_response
                     else:
                         return f"[SYSTEM_CONTEXT: MAX_STEPS_REACHED - Agent hit {self.max_steps} step limit without valid response]"
 
-        # If we exit the loop due to STUCK state, return last valid response with context
         if session_state.state == AgentState.STUCK and last_valid_response:
-            # Prepend loop detection context for judge evaluation
             loop_context = (
                 "[SYSTEM_CONTEXT: LOOP_DETECTED - Agent stuck in tool call loop]\n\n"
             )

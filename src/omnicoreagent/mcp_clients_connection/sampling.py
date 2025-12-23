@@ -38,7 +38,6 @@ class LLMConnection:
         try:
             provider = provider.lower()
 
-            # Map provider to LiteLLM format
             provider_model_map = {
                 "openai": f"openai/{model}",
                 "anthropic": f"anthropic/{model}",
@@ -52,7 +51,6 @@ class LLMConnection:
 
             full_model = provider_model_map.get(provider)
 
-            # Convert Message objects to dicts before sending to LiteLLM
             def to_dict(msg):
                 if hasattr(msg, "model_dump"):
                     return msg.model_dump(exclude_none=True)
@@ -94,7 +92,6 @@ class samplingCallback:
         with open(config_path, encoding="utf-8") as f:
             config = json.load(f)
             llm_config = config.get("LLM", {})
-            # Get available models for the provider
             available_models = []
             models = llm_config.get("model", [])
             if not isinstance(models, list):
@@ -107,9 +104,8 @@ class samplingCallback:
         """Select the best model based on preferences and available models."""
 
         if not preferences or not preferences.hints:
-            return available_models[0]  # Default to first available model
+            return available_models[0]
 
-        # Try to match hints with available models
         for hint in preferences.hints:
             if not hint.name:
                 continue
@@ -117,18 +113,14 @@ class samplingCallback:
                 if hint.name.lower() in model.lower():
                     return model
 
-        # If no match found, use priorities to select model
         if preferences.intelligencePriority and preferences.intelligencePriority > 0.7:
-            # Prefer more capable models
-            return max(available_models, key=lambda x: len(x))  # Simple heuristic
+            return max(available_models, key=lambda x: len(x))
         elif preferences.speedPriority and preferences.speedPriority > 0.7:
-            # Prefer faster models
-            return min(available_models, key=lambda x: len(x))  # Simple heuristic
+            return min(available_models, key=lambda x: len(x))
         elif preferences.costPriority and preferences.cosPriority > 0.7:
-            # Prefer cheaper models
-            return min(available_models, key=lambda x: len(x))  # Simple heuristic
+            return min(available_models, key=lambda x: len(x))
 
-        return available_models[0]  # Default fallback
+        return available_models[0]
 
     async def _get_context(
         self,
@@ -142,14 +134,12 @@ class samplingCallback:
         context_parts = []
 
         if include_context == ContextInclusion.THIS_SERVER:
-            # Get context from specific server
             if server_name in self.sessions:
                 session_data = self.sessions[server_name]
                 if "message_history" in session_data:
                     context_parts.extend(session_data["message_history"])
 
         elif include_context == ContextInclusion.ALL_SERVERS:
-            # Get context from all servers
             for session_data in self.sessions.values():
                 if "message_history" in session_data:
                     context_parts.extend(session_data["message_history"])
@@ -163,23 +153,18 @@ class samplingCallback:
     ) -> CreateMessageResult | ErrorData:
         """Enhanced sampling callback with support for advanced features."""
         try:
-            # Validate required parameters
             if not params.messages or not isinstance(params.maxTokens, int):
                 return ErrorData(
                     code="INVALID_REQUEST",
                     message="Missing required fields: messages or max_tokens",
                 )
 
-            # Get the LLM configuration from the client instance
-
             available_models, provider = await self.load_model()
 
-            # Select model based on preferences
             model = await self._select_model(params.modelPreferences, available_models)
 
             additional_context = await self._get_context(params.includeContext)
 
-            # Prepare messages with context and system prompt
             messages = []
             if params.systemPrompt:
                 messages.append({"role": "system", "content": params.systemPrompt})
@@ -197,7 +182,6 @@ class samplingCallback:
                 ]
             )
 
-            # Initialize the appropriate client based on provider
             response = await self.llm_connection.llm_call(
                 provider=provider,
                 messages=messages,
@@ -209,7 +193,6 @@ class samplingCallback:
             completion = response.choices[0].message.content
             stop_reason = response.choices[0].finish_reason
 
-            # Create the result
             result = CreateMessageResult(
                 model=model,
                 stop_reason=stop_reason,

@@ -19,23 +19,18 @@ load_dotenv()
 import logging
 import os
 
-# Environment variable
 os.environ["LITELLM_LOG"] = "CRITICAL"
 
-# Disable verbose mode
 litellm.set_verbose = False
 
-# Disable all callbacks
 litellm.callbacks = []
 litellm.success_callback = []
 litellm.failure_callback = []
 
-# Disable loggers
 logging.getLogger("LiteLLM").disabled = True
 logging.getLogger("litellm").disabled = True
 logging.getLogger("litellm.proxy").disabled = True
 
-# Set log levels to critical
 for logger_name in ["LiteLLM", "litellm", "litellm.proxy"]:
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.CRITICAL)
@@ -64,7 +59,6 @@ def retry_with_backoff(max_retries=3, base_delay=1, max_delay=60, backoff_factor
                     last_exception = e
                     error_msg = str(e).lower()
 
-                    # Check if it's a retryable error
                     if any(
                         keyword in error_msg
                         for keyword in [
@@ -82,7 +76,6 @@ def retry_with_backoff(max_retries=3, base_delay=1, max_delay=60, backoff_factor
                         ]
                     ):
                         if attempt < max_retries:
-                            # Calculate delay with exponential backoff and jitter
                             delay = min(
                                 base_delay * (backoff_factor**attempt), max_delay
                             )
@@ -295,7 +288,6 @@ class LLMConnection:
             if self.llm_config.get("top_p") is not None:
                 params["top_p"] = self.llm_config["top_p"]
 
-            # Add tools if provided
             if tools:
                 params["tools"] = tools
                 params["tool_choice"] = "auto"

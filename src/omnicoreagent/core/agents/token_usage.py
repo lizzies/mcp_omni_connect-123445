@@ -33,7 +33,6 @@ class Usage:
         if self.details is None:
             self.details = {}
 
-        # Auto-calculate total tokens if not provided but both request and response tokens are available
         if (
             self.total_tokens is None
             and self.request_tokens is not None
@@ -50,21 +49,17 @@ class Usage:
         """
         self.requests += incr_usage.requests + requests
 
-        # Handle token counts
         for f in ("request_tokens", "response_tokens"):
             self_value = getattr(self, f)
             other_value = getattr(incr_usage, f)
             if other_value is not None:
                 setattr(self, f, (self_value or 0) + other_value)
 
-        # Update total tokens
         if incr_usage.total_tokens is not None:
             self.total_tokens = (self.total_tokens or 0) + incr_usage.total_tokens
         elif self.request_tokens is not None and self.response_tokens is not None:
-            # Recalculate total if we have both request and response tokens
             self.total_tokens = self.request_tokens + self.response_tokens
 
-        # Update details
         if incr_usage.details:
             for key, value in incr_usage.details.items():
                 self.details[key] = self.details.get(key, 0) + value
@@ -163,7 +158,6 @@ class UsageLimits:
         Raises:
             UsageLimitExceeded: If the next request would exceed the request_limit
         """
-        # Skip check if request_limit is 0 (unlimited)
         if self.request_limit == 0:
             return
 
@@ -217,7 +211,6 @@ class UsageLimits:
             )
 
 
-# to store the api stats
 session_stats = {
     "used_requests": 0,
     "used_tokens": 0,

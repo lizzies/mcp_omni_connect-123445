@@ -50,10 +50,8 @@ class InMemoryStore(AbstractMemoryStore):
         session_id: str,
     ) -> None:
         """Store a message in memory."""
-        # Defensive copy to avoid external mutation after storage
         metadata_copy = dict(metadata)
 
-        # Normalize agent_name if present for consistent storage
         if "agent_name" in metadata_copy and isinstance(
             metadata_copy["agent_name"], str
         ):
@@ -94,9 +92,7 @@ class InMemoryStore(AbstractMemoryStore):
                 messages.pop(0)
                 total_tokens = sum(len(str(msg["content"]).split()) for msg in messages)
 
-        # If caller supplied an agent_name, normalize compare (strip only)
         if agent_name:
-            # normalize caller arg
             agent_name_norm = agent_name.strip()
             filtered = [
                 msg
@@ -106,7 +102,6 @@ class InMemoryStore(AbstractMemoryStore):
             ]
         else:
             filtered = messages
-        # Return deep copies so caller cannot change our internal store
         return [copy.deepcopy(m) for m in filtered]
 
     async def clear_memory(
@@ -121,28 +116,23 @@ class InMemoryStore(AbstractMemoryStore):
         try:
             if session_id and session_id in self.sessions_history:
                 if agent_name:
-                    # Remove only messages for specific agent in this session
                     self.sessions_history[session_id] = [
                         msg
                         for msg in self.sessions_history[session_id]
                         if msg.get("msg_metadata", {}).get("agent_name") != agent_name
                     ]
                 else:
-                    # Remove entire session
                     del self.sessions_history[session_id]
             elif agent_name:
-                # Remove messages for specific agent across all sessions
                 for session_id in list(self.sessions_history.keys()):
                     self.sessions_history[session_id] = [
                         msg
                         for msg in self.sessions_history[session_id]
                         if msg.get("msg_metadata", {}).get("agent_name") != agent_name
                     ]
-                    # Remove empty sessions
                     if not self.sessions_history[session_id]:
                         del self.sessions_history[session_id]
             else:
-                # Clear all memory
                 self.sessions_history = {}
 
         except Exception as e:

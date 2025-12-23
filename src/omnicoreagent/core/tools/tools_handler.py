@@ -31,7 +31,6 @@ class MCPToolHandler(BaseToolHandler):
         self.sessions = sessions
         self.server_name = server_name
 
-        # If server_name not passed in, infer it from tool_data
         if self.server_name is None and tool_data and mcp_tools:
             self.server_name = self._infer_server_name(tool_data, mcp_tools)
 
@@ -121,7 +120,6 @@ class LocalToolHandler(BaseToolHandler):
                     "tool_args": tool_args,
                 }
 
-            # Check if tool exists in local tools
             available_local_tools = local_tools.get_available_tools()
             tool_names = [tool["name"] for tool in available_local_tools]
 
@@ -207,13 +205,10 @@ class ToolExecutor:
                     data = result.get("data")
                     message = result.get("message")
 
-                    # Handle error cases
                     if status == "error" and not message:
                         message = "Tool returned error status without message."
 
-                    # Handle success with no data
                     if status == "success" and data is None:
-                        # Keep status as success but optionally add a note in message
                         message = (
                             message
                             or "(Tool executed successfully but returned no data; This likely means the action completed or is async.)"

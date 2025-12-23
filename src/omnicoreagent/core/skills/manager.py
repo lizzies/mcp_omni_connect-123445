@@ -89,7 +89,6 @@ class SkillManager:
         """
         skill_path = (self.skills_root / skill_name).resolve()
 
-        # Security: ensure skill is within skills_root
         if not str(skill_path).startswith(str(self.skills_root)):
             raise RuntimeError(f"Invalid skill path: {skill_name}")
 
@@ -156,20 +155,17 @@ class SkillManager:
             logger.warning(f"Failed to read {skill_md}: {e}")
             return None
 
-        # Parse YAML frontmatter (between --- delimiters)
         frontmatter = self._extract_frontmatter(content)
         if not frontmatter:
             logger.warning(f"No valid frontmatter in {skill_md}")
             return None
 
-        # Parse the YAML-like frontmatter manually (simple key: value format)
         parsed = self._parse_yaml_frontmatter(frontmatter)
 
         if "name" not in parsed or "description" not in parsed:
             logger.warning(f"Missing required fields in {skill_md}")
             return None
 
-        # Validate that skill directory name matches the name in frontmatter
         if parsed["name"] != skill_dir.name:
             logger.warning(
                 f"Skill name mismatch: directory '{skill_dir.name}' vs "
@@ -203,7 +199,6 @@ class SkillManager:
         if not content.startswith("---"):
             return None
 
-        # Find the closing ---
         end_idx = content.find("---", 3)
         if end_idx == -1:
             return None
@@ -228,7 +223,6 @@ class SkillManager:
                 i += 1
                 continue
 
-            # Top-level key
             match = re.match(r"^([\w-]+):\s*(.*)$", line)
             if match:
                 key, value = match.groups()
@@ -236,7 +230,6 @@ class SkillManager:
                 value = value.strip().strip('"').strip("'")
 
                 if key == "metadata" and not value:
-                    # Parse nested metadata
                     metadata_dict = {}
                     i += 1
                     while i < len(lines):
@@ -245,7 +238,6 @@ class SkillManager:
                             i += 1
                             continue
                         if not next_line.startswith("  "):
-                            # End of metadata block
                             break
 
                         nested_match = re.match(r"^\s+([\w-]+):\s*(.*)$", next_line)
@@ -256,7 +248,7 @@ class SkillManager:
                             )
                         i += 1
                     result["metadata"] = metadata_dict
-                    continue  # We already incremented i
+                    continue
                 else:
                     if value:
                         result[key] = value

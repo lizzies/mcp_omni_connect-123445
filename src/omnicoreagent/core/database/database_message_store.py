@@ -27,7 +27,6 @@ class SQLConnectionManager:
         return cls._instance
 
     def __init__(self):
-        # Only initialize once due to singleton pattern
         if not hasattr(self, "_initialized"):
             self._initialized = True
             self._engine = None
@@ -40,13 +39,12 @@ class SQLConnectionManager:
         with self._lock:
             if self._engine is None:
                 try:
-                    # Configure connection pool settings
                     connection_kwargs = {
-                        "pool_size": 20,  # Connection pool size
-                        "max_overflow": 30,  # Max overflow connections
-                        "pool_timeout": 30,  # Connection timeout
-                        "pool_recycle": 1800,  # Recycle connections after 30 minutes
-                        "pool_pre_ping": True,  # Test connections before use
+                        "pool_size": 20,
+                        "max_overflow": 30,
+                        "pool_timeout": 30,
+                        "pool_recycle": 1800,
+                        "pool_pre_ping": True,
                         **kwargs,
                     }
 
@@ -88,7 +86,6 @@ class SQLConnectionManager:
                     "SQLConnectionManager not initialized. Call initialize() first."
                 )
 
-            # Fresh session for background processing (not pooled so it wont share context with the main event)
             fresh_session = self._session_factory()
             logger.debug("[SQLManager] Created fresh session for background processing")
             return fresh_session
@@ -108,7 +105,6 @@ class SQLConnectionManager:
                 logger.debug("[SQLManager] Closed all SQL connections")
 
 
-# Global SQL connection manager - created only when needed
 _sql_manager = None
 
 
@@ -153,7 +149,6 @@ class StorageMessage(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    # ISO 8601 string for portability with different database
     timestamp: Mapped[str] = mapped_column(
         String(50), default=lambda: datetime.now(timezone.utc).isoformat()
     )
@@ -168,20 +163,15 @@ class DatabaseMessageStore:
     """
 
     def __init__(self, db_url: str = None, **kwargs: Any):
-        # Set up basic configuration
         self.db_url = db_url
         self.memory_config: dict[str, Any] = {}
 
-        # Only initialize database connections if db_url is provided
         if db_url:
-            # Use SQL connection manager for optimized connection pooling
             self._sql_manager = get_sql_manager()
             self._sql_manager.initialize(db_url, **kwargs)
 
-            # Get engine for table inspection and creation
             db_engine = self._sql_manager.get_engine()
 
-            # Check if tables exist before creating them
             inspector = inspect(db_engine)
             existing_tables = inspector.get_table_names()
 
@@ -200,10 +190,8 @@ class DatabaseMessageStore:
         if not hasattr(self, "_initialized") or not self._sql_manager._engine:
             self._sql_manager.initialize(db_url, **kwargs)
 
-            # Get engine for table inspection and creation
             db_engine = self._sql_manager.get_engine()
 
-            # Check if tables exist before creating them
             inspector = inspect(db_engine)
             existing_tables = inspector.get_table_names()
 
@@ -226,7 +214,6 @@ class DatabaseMessageStore:
         if session:
             try:
                 session.close()
-                # Only release pooled sessions, fresh sessions are not pooled
                 if not hasattr(session, "_is_fresh_session"):
                     self._sql_manager.release_session()
             except Exception as e:
@@ -251,9 +238,7 @@ class DatabaseMessageStore:
         try:
             if metadata is None:
                 metadata = {}
-            session = self._get_session(
-                fresh_for_background=False
-            )  # Use pooled session
+            session = self._get_session(fresh_for_background=False)
             message = StorageMessage(
                 session_id=session_id,
                 role=role,
@@ -299,7 +284,6 @@ class DatabaseMessageStore:
                 for m in messages
             ]
 
-            # Apply memory configuration optimizations
             mode = self.memory_config.get("mode", "token_budget")
             value = self.memory_config.get("value")
             if mode.lower() == "sliding_window" and value is not None:
@@ -327,26 +311,22 @@ class DatabaseMessageStore:
             session = self._get_session(fresh_for_background=False)
 
             if session_id and agent_name:
-                # Clear messages for specific agent in specific session
                 query = session.query(StorageMessage).filter(
                     StorageMessage.session_id == session_id,
                     StorageMessage.msg_metadata.contains({"agent_name": agent_name}),
                 )
                 query.delete()
             elif session_id:
-                # Clear all messages for specific session
                 query = session.query(StorageMessage).filter(
                     StorageMessage.session_id == session_id
                 )
                 query.delete()
             elif agent_name:
-                # Clear messages for specific agent across all sessions
                 query = session.query(StorageMessage).filter(
                     StorageMessage.msg_metadata.contains({"agent_name": agent_name})
                 )
                 query.delete()
             else:
-                # Clear all messages
                 session.query(StorageMessage).delete()
 
             session.commit()

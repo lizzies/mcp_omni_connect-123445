@@ -21,7 +21,6 @@ async def refresh_capabilities(
             logger.warning(f"No session found for server: {server_name}")
             continue
 
-        # List all tools
         try:
             tools_response = await session.list_tools()
             available_tools[server_name] = (
@@ -31,7 +30,6 @@ async def refresh_capabilities(
             logger.info(f"{server_name} does not support tools: {e}")
             available_tools[server_name] = []
 
-        # List all resources
         try:
             resources_response = await session.list_resources()
             available_resources[server_name] = (
@@ -41,7 +39,6 @@ async def refresh_capabilities(
             logger.info(f"{server_name} does not support resources: {e}")
             available_resources[server_name] = []
 
-        # List all prompts
         try:
             prompts_response = await session.list_prompts()
             available_prompts[server_name] = (

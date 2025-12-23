@@ -11,7 +11,6 @@ from omnicoreagent.core.agents.token_usage import (
 from omnicoreagent.core.utils import logger
 
 
-# handle subscribe to resource change
 async def subscribe_resource(
     sessions: dict[str, dict[str, Any]],
     uri: str,
@@ -20,7 +19,6 @@ async def subscribe_resource(
     server_name, found = await find_resource_server(uri, available_resources)
     try:
         logger.info(f"Subscribing to {uri} resource on {server_name}")
-        # check if the server_name still connected
         if found and sessions[server_name]["connected"]:
             await sessions[server_name]["session"].subscribe_resource(uri)
             logger.info(f"Subscribed to {uri} resource on {server_name}")
@@ -53,7 +51,6 @@ async def unsubscribe_resource(
     return f"Unsubscribed from {uri} resource on {server_name}"
 
 
-# list all resources in mcp server
 async def list_resources(server_names: list[str], sessions: dict[str, dict[str, Any]]):
     """List all resources"""
     resources = []
@@ -84,7 +81,6 @@ async def find_resource_server(
     return "", False
 
 
-# read a resource from mcp server
 async def read_resource(
     uri: str,
     sessions: dict[str, dict[str, Any]],
@@ -129,9 +125,7 @@ async def read_resource(
                     total_tokens=llm_response.usage.total_tokens,
                 )
                 usage.incr(request_usage)
-                # Check if we've exceeded token limits
                 usage_limits.check_tokens(usage)
-                # Show remaining resources
                 remaining_tokens = usage_limits.remaining_tokens(usage)
                 used_tokens = usage.total_tokens
                 used_requests = usage.requests

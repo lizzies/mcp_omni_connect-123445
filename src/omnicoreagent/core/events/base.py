@@ -18,7 +18,6 @@ class EventType(str, Enum):
     SUB_AGENT_CALL_STARTED = "sub_agent_call_started"
     SUB_AGENT_CALL_RESULT = "sub_agent_call_result"
     SUB_AGENT_CALL_ERROR = "sub_agent_call_error"
-    # Background agent events
     BACKGROUND_TASK_STARTED = "background_task_started"
     BACKGROUND_TASK_COMPLETED = "background_task_completed"
     BACKGROUND_TASK_ERROR = "background_task_error"
@@ -83,7 +82,6 @@ class SubAgentCallErrorPayload(BaseModel):
     error_count: int
 
 
-# Background agent payload models
 class BackgroundTaskStartedPayload(BaseModel):
     agent_id: str
     session_id: str

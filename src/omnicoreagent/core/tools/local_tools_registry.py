@@ -28,7 +28,6 @@ class Tool:
 
     async def execute(self, parameters: Dict[str, Any]) -> Any:
         """Execute the tool with extracted parameters"""
-        # Extract parameters from the dict based on function signature
         sig = inspect.signature(self.function)
         func_params = {}
 
@@ -40,7 +39,6 @@ class Tool:
             else:
                 raise ValueError(f"Missing required parameter: {param_name}")
 
-        # Execute the function
         if self.is_async:
             return await self.function(**func_params)
         else:
@@ -77,12 +75,10 @@ class ToolRegistry:
         def decorator(func: Callable):
             tool_name = name or func.__name__.lower()
 
-            # Prefer explicit description, else docstring, else fallback
             final_description = description or (
                 func.__doc__ or "No description provided."
             )
 
-            # Prefer explicit schema, else infer from signature + docstring
             final_schema = inputSchema or self._infer_schema(func)
 
             tool = Tool(
@@ -140,7 +136,6 @@ class ToolRegistry:
         props = {}
         required = []
 
-        # Extract docstring lines for parameter descriptions
         docstring = func.__doc__ or ""
         doc_lines = [line.strip() for line in docstring.split("\n") if ":" in line]
 
@@ -161,7 +156,6 @@ class ToolRegistry:
             )
             schema = {"type": self._map_type(param_type)}
 
-            # Attach description if found in docstring
             if param_name in param_docs:
                 schema["description"] = param_docs[param_name]
 

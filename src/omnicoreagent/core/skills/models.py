@@ -61,17 +61,14 @@ class SkillMetadata(BaseModel):
         - Must not start or end with hyphen
         - Must not contain consecutive hyphens
         """
-        # Check for valid characters
         if not re.match(r"^[a-z0-9-]+$", v):
             raise ValueError(
                 "Skill name must contain only lowercase letters, numbers, and hyphens"
             )
 
-        # Check start/end
         if v.startswith("-") or v.endswith("-"):
             raise ValueError("Skill name must not start or end with a hyphen")
 
-        # Check consecutive hyphens
         if "--" in v:
             raise ValueError("Skill name must not contain consecutive hyphens")
 

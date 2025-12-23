@@ -71,7 +71,6 @@ async def get_prompt(
         logger.error(error_message)
         return error_message
     try:
-        # add the first message to the history to help the llm to know when to use all available tools directly
         await add_message_to_history(
             agent_name=agent_name,
             role="user",

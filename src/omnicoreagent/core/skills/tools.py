@@ -75,19 +75,16 @@ def build_skill_tools(
             Dict with status and file content or error message.
         """
         try:
-            # Validate skill exists
             skill_root = skill_manager.validate_skill(skill_name)
         except RuntimeError as e:
             return {"status": "error", "error": str(e)}
 
-        # Resolve and validate target path
         file_path = file_path.strip()
         if not file_path:
             return {"status": "error", "error": "Missing file path"}
 
         target = (skill_root / file_path).resolve()
 
-        # Security: ensure path is within skill directory
         if not str(target).startswith(str(skill_root)):
             return {
                 "status": "error",
@@ -163,16 +160,13 @@ def build_skill_tools(
             Dict with status, stdout, stderr, and exit_code.
         """
         try:
-            # Validate skill exists
             skill_root = skill_manager.validate_skill(skill_name)
         except RuntimeError as e:
             return {"status": "error", "message": str(e)}
 
-        # Validate script path
         scripts_dir = (skill_root / "scripts").resolve()
         script_path = (scripts_dir / script_name).resolve()
 
-        # Security: ensure script is within scripts/ directory
         if not str(script_path).startswith(str(scripts_dir)):
             return {"status": "error", "message": "Invalid script path"}
 
@@ -182,9 +176,7 @@ def build_skill_tools(
         if not script_path.is_file():
             return {"status": "error", "message": f"Not a file: {script_name}"}
 
-        # Execute the script
         try:
-            # Determine command based on extension
             ext = script_path.suffix.lower()
             cmd_prefix = []
 
@@ -201,7 +193,6 @@ def build_skill_tools(
             elif ext == ".pl":
                 cmd_prefix = ["perl"]
 
-            # Combine prefix, script path and args
             full_cmd = cmd_prefix + [str(script_path)] + (args or [])
 
             result = subprocess.run(
@@ -209,7 +200,7 @@ def build_skill_tools(
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                cwd=str(skill_root),  # Run from skill directory
+                cwd=str(skill_root),
             )
 
             return {

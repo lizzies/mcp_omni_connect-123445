@@ -35,7 +35,6 @@ class MongoDb(AbstractMemoryStore):
             self.collection = self.db[collection_name]
             logger.debug(f"Using collection: {collection_name}")
 
-            # Create indexes for messages collection
             message_indexes = [
                 IndexModel([("session_id", 1), ("msg_metadata.agent_name", 1)]),
                 IndexModel([("session_id", 1)]),
@@ -108,7 +107,6 @@ class MongoDb(AbstractMemoryStore):
                 for m in messages
             ]
 
-            # Apply memory config
             mode = self.memory_config.get("mode", "token_budget")
             value = self.memory_config.get("value")
             if mode.lower() == "sliding_window" and value is not None:
