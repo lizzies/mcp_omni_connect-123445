@@ -1,12 +1,12 @@
 """
-OmniAgent Package
+OmniCoreAgent Package
 
-This package provides the high-level OmniAgent interface and background agent functionality.
+This package provides the high-level OmniCoreAgent interface and background agent functionality.
 """
 
-from .agent import OmniAgent
+from .agent import OmniCoreAgent
 from .background_agent import (
-    BackgroundOmniAgent,
+    BackgroundOmniCoreAgent,
     BackgroundAgentManager,
     TaskRegistry,
     APSchedulerBackend,
@@ -14,8 +14,8 @@ from .background_agent import (
 )
 
 __all__ = [
-    "OmniAgent",
-    "BackgroundOmniAgent",
+    "OmniCoreAgent",
+    "BackgroundOmniCoreAgent",
     "BackgroundAgentManager",
     "TaskRegistry",
     "APSchedulerBackend",

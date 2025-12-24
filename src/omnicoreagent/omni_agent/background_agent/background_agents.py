@@ -1,5 +1,5 @@
 """
-Background OmniAgent for self-flying automation.
+Background OmniCoreAgent for self-flying automation.
 """
 
 import asyncio
@@ -7,7 +7,7 @@ import uuid
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 
-from omnicoreagent.omni_agent.agent import OmniAgent
+from omnicoreagent.omni_agent.agent import OmniCoreAgent
 
 from omnicoreagent.core.memory_store.memory_router import MemoryRouter
 
@@ -24,8 +24,8 @@ from omnicoreagent.core.events.base import (
 from omnicoreagent.omni_agent.background_agent.task_registry import TaskRegistry
 
 
-class BackgroundOmniAgent(OmniAgent):
-    """Background OmniAgent for automated task execution."""
+class BackgroundOmniCoreAgent(OmniCoreAgent):
+    """Background OmniCoreAgent for automated task execution."""
 
     def __init__(
         self,
@@ -35,7 +35,7 @@ class BackgroundOmniAgent(OmniAgent):
         event_router: Optional[EventRouter] = None,
     ):
         """
-        Initialize BackgroundOmniAgent.
+        Initialize BackgroundOmniCoreAgent.
 
         Args:
             config: Configuration dictionary containing agent setup
@@ -69,7 +69,7 @@ class BackgroundOmniAgent(OmniAgent):
         self.retry_delay = config.get("retry_delay", 60)
 
         if task_registry is None:
-            raise ValueError("TaskRegistry is required for BackgroundOmniAgent")
+            raise ValueError("TaskRegistry is required for BackgroundOmniCoreAgent")
         self.task_registry = task_registry
 
         self.session_id = f"background_{self.agent_id}_{uuid.uuid4().hex[:8]}"
@@ -80,13 +80,13 @@ class BackgroundOmniAgent(OmniAgent):
         self.error_count = 0
 
         logger.info(
-            f"Initialized BackgroundOmniAgent: {self.agent_id} with session_id: {self.session_id}"
+            f"Initialized BackgroundOmniCoreAgent: {self.agent_id} with session_id: {self.session_id}"
         )
 
     async def connect_mcp_servers(self):
         """Connect to MCP servers if not already connected."""
         await super().connect_mcp_servers()
-        logger.info(f"BackgroundOmniAgent {self.agent_id} connected to MCP servers")
+        logger.info(f"BackgroundOmniCoreAgent {self.agent_id} connected to MCP servers")
 
     def get_session_id(self) -> str:
         """Get the persistent session ID for this background agent."""
@@ -103,12 +103,12 @@ class BackgroundOmniAgent(OmniAgent):
         }
 
     async def stream_events(self, session_id: str):
-        """Stream events for this background agent (consistent with OmniAgent API)."""
+        """Stream events for this background agent (consistent with OmniCoreAgent API)."""
         async for event in self.event_router.stream(session_id=session_id):
             yield event
 
     async def get_events(self, session_id: str) -> List[Event]:
-        """Get events for this background agent (consistent with OmniAgent API)."""
+        """Get events for this background agent (consistent with OmniCoreAgent API)."""
         return await self.event_router.get_events(session_id=session_id)
 
     def get_task_query(self) -> str:

@@ -1,26 +1,26 @@
 # Basic Usage
 
-This guide covers the everyday usage patterns and commands for MCPOmni Connect.
+This guide covers the everyday usage patterns and commands for OmniCoreAgent.
 
-## Starting MCPOmni Connect
+## Starting OmniCoreAgent
 
 ```bash
 # Start with default configuration
-mcpomni_connect
+omnicoreagent
 
 # Start with custom config file
-mcpomni_connect --config custom.servers_config.json
+omnicoreagent --config custom.servers_config.json
 
 # Start with debug mode enabled
-mcpomni_connect --debug
+omnicoreagent --debug
 ```
 
 ## Understanding the Interface
 
-When you start MCPOmni Connect, you'll see:
+When you start OmniCoreAgent, you'll see:
 
 ```
-🚀 MCPOmni Connect - Universal Gateway to MCP Servers
+🚀 OmniCoreAgent - Universal Gateway to MCP Servers
 Connected to 3 MCP servers: filesystem, database, notifications
 Mode: CHAT (type /mode:auto for autonomous mode)
 
@@ -31,15 +31,15 @@ Mode: CHAT (type /mode:auto for autonomous mode)
 
 - **Connection Status**: Shows how many MCP servers are connected
 - **Current Mode**: CHAT (interactive) or AUTO (autonomous)
-- **Prompt**: `>` indicates MCPOmni Connect is ready for input
+- **Prompt**: `>` indicates OmniCoreAgent is ready for input
 
 ## Command Types
 
-MCPOmni Connect accepts two types of input:
+OmniCoreAgent accepts two types of input:
 
 ### 1. System Commands (start with `/`)
 
-System commands control MCPOmni Connect's behavior:
+System commands control OmniCoreAgent's behavior:
 
 ```bash
 /tools              # List available tools
@@ -426,7 +426,7 @@ Solutions:
 Solutions:
 1. Check if the server is still running
 2. Refresh connections: /refresh
-3. Restart MCPOmni Connect
+3. Restart OmniCoreAgent
 4. Verify network connectivity
 ```
 

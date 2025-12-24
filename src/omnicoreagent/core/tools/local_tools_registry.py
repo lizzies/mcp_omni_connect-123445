@@ -99,7 +99,7 @@ class ToolRegistry:
         return list(self.tools.values())
 
     def get_available_tools(self) -> List[Dict[str, Any]]:
-        """Get list of available tools for OmniAgent"""
+        """Get list of available tools for OmniCoreAgent"""
         tools = []
         for tool in self.list_tools():
             tools.append(

@@ -1,6 +1,6 @@
 # Testing
 
-MCPOmni Connect includes comprehensive testing infrastructure to ensure reliability and quality. This guide covers running tests, writing new tests, and testing best practices.
+OmniCoreAgent includes comprehensive testing infrastructure to ensure reliability and quality. This guide covers running tests, writing new tests, and testing best practices.
 
 ## Test Structure
 
@@ -48,7 +48,7 @@ pytest tests/ -v -s --tb=short
 
 ### Test Categories
 
-MCPOmni Connect tests are organized by markers:
+OmniCoreAgent tests are organized by markers:
 
 ```bash
 # Unit tests only
@@ -115,7 +115,7 @@ DEBUG=true
 ```python title="tests/unit/test_llm.py"
 import pytest
 from unittest.mock import Mock, patch
-from mcpomni_connect.llm import LLMIntegration
+from omnicoreagent.llm import LLMIntegration
 
 class TestLLMIntegration:
     @pytest.fixture
@@ -131,7 +131,7 @@ class TestLLMIntegration:
     def llm_integration(self, llm_config):
         return LLMIntegration(llm_config)
 
-    @patch('mcpomni_connect.llm.litellm.completion')
+    @patch('omnicoreagent.llm.litellm.completion')
     def test_generate_response(self, mock_completion, llm_integration):
         # Arrange
         mock_response = Mock()
@@ -168,7 +168,7 @@ class TestLLMIntegration:
 import pytest
 import asyncio
 from unittest.mock import Mock, AsyncMock
-from mcpomni_connect.transport import StdioTransport, SSETransport
+from omnicoreagent.transport import StdioTransport, SSETransport
 
 class TestStdioTransport:
     @pytest.fixture
@@ -218,7 +218,7 @@ class TestSSETransport:
 ```python title="tests/unit/test_memory.py"
 import pytest
 from unittest.mock import Mock, patch
-from mcpomni_connect.memory import InMemoryStore, RedisShortTermMemory
+from omnicoreagent.memory import InMemoryStore, RedisShortTermMemory
 
 class TestInMemoryStore:
     @pytest.fixture
@@ -326,7 +326,7 @@ class TestInMemoryStore:
 ```python title="tests/integration/test_mcp_servers.py"
 import pytest
 import asyncio
-from mcpomni_connect.core import MCPOmniConnect
+from omnicoreagent.core import MCPOmniConnect
 
 class TestMCPServerIntegration:
     @pytest.fixture
@@ -388,7 +388,7 @@ class TestMCPServerIntegration:
 ```python title="tests/integration/test_auth.py"
 import pytest
 from unittest.mock import patch, Mock
-from mcpomni_connect.auth import OAuthManager, BearerTokenAuth
+from omnicoreagent.auth import OAuthManager, BearerTokenAuth
 
 class TestOAuthFlow:
     @pytest.mark.integration
@@ -426,7 +426,7 @@ import pytest
 import asyncio
 import time
 from concurrent.futures import ThreadPoolExecutor
-from mcpomni_connect.core import MCPOmniConnect
+from omnicoreagent.core import MCPOmniConnect
 
 class TestPerformance:
     @pytest.mark.performance
@@ -479,7 +479,7 @@ class TestPerformance:
 ```python title="tests/performance/test_benchmarks.py"
 import pytest
 import time
-from mcpomni_connect.core import MCPOmniConnect
+from omnicoreagent.core import MCPOmniConnect
 
 class TestBenchmarks:
     @pytest.mark.performance
@@ -646,7 +646,7 @@ class TestFeatureName:
 
 ```python
 # Good: Mock external dependencies
-@patch('mcpomni_connect.external_api.requests.get')
+@patch('omnicoreagent.external_api.requests.get')
 def test_api_call(self, mock_get):
     mock_get.return_value.json.return_value = {"status": "ok"}
     result = my_function()
@@ -756,6 +756,6 @@ def test_database():
 
 ---
 
-This comprehensive testing guide ensures MCPOmni Connect maintains high quality and reliability across all its components and features.
+This comprehensive testing guide ensures OmniCoreAgent maintains high quality and reliability across all its components and features.
 
 **Next**: [Contributing →](contributing.md)

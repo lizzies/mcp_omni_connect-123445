@@ -189,7 +189,7 @@ async def test_refresh_capabilities_with_debug(mock_sessions, mock_available_dic
     """Test refresh with debug logging"""
     server_names = ["server1", "server2"]
 
-    with patch("mcpomni_connect.refresh_server_capabilities.logger") as mock_logger:
+    with patch("omnicoreagent.refresh_server_capabilities.logger") as mock_logger:
         await refresh_capabilities(
             mock_sessions,
             server_names,

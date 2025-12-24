@@ -1,6 +1,6 @@
-# MCPOmni Connect Documentation
+# OmniCoreAgent Documentation
 
-This directory contains the MkDocs-based documentation for MCPOmni Connect.
+This directory contains the MkDocs-based documentation for OmniCoreAgent.
 
 ## 🚀 Quick Start
 
@@ -99,7 +99,7 @@ Use fenced code blocks with language specification:
 
 ```bash
 # Shell commands
-mcpomni_connect --help
+omnicoreagent --help
 ```
 
 ```json
@@ -113,7 +113,7 @@ mcpomni_connect --help
 
 ```python
 # Python code
-import mcpomni_connect
+import omnicoreagent
 ```
 
 ### Admonitions

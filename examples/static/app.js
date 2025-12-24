@@ -1,5 +1,5 @@
-// Enhanced OmniAgent Web Interface JavaScript
-class OmniAgentInterface {
+// Enhanced OmniCoreAgent Web Interface JavaScript
+class OmniCoreAgentInterface {
     constructor() {
         this.currentSessionId = null;
         this.isStreaming = false;
@@ -23,7 +23,7 @@ class OmniAgentInterface {
         // Chat functionality
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
-        
+
         if (chatForm) {
             chatForm.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -106,11 +106,11 @@ class OmniAgentInterface {
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const target = tab.getAttribute('data-target');
-                
+
                 // Remove active class from all tabs and contents
                 tabs.forEach(t => t.classList.remove('active'));
                 tabContents.forEach(tc => tc.classList.remove('active'));
-                
+
                 // Add active class to clicked tab and target content
                 tab.classList.add('active');
                 document.getElementById(target).classList.add('active');
@@ -126,7 +126,7 @@ class OmniAgentInterface {
     async sendMessage() {
         const chatInput = document.getElementById('chat-input');
         const message = chatInput.value.trim();
-        
+
         if (!message || this.isStreaming) return;
 
         // Add user message to chat
@@ -169,7 +169,7 @@ class OmniAgentInterface {
                     if (line.startsWith('data: ')) {
                         try {
                             const data = JSON.parse(line.slice(6));
-                            
+
                             if (data.type === 'chunk') {
                                 fullResponse += data.content;
                                 this.updateMessage(streamingId, fullResponse);
@@ -204,14 +204,14 @@ class OmniAgentInterface {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type} ${className}`;
         messageDiv.textContent = content;
-        
+
         if (className === 'streaming') {
             messageDiv.id = `streaming-${Date.now()}`;
         }
-        
+
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        
+
         return messageDiv.id;
     }
 
@@ -253,12 +253,12 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.showNotification('Background agent created successfully!', 'success');
                 this.loadBackgroundAgents(); // Refresh the list
                 this.loadSystemInfo(); // Update background agents count
-                
+
                 // Clear the form
                 document.getElementById('agent-id').value = '';
                 document.getElementById('agent-query').value = '';
@@ -298,12 +298,12 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.showNotification('Task updated successfully!', 'success');
                 this.loadBackgroundAgents(); // Refresh the list
                 this.loadSystemInfo();
-                
+
                 // Clear the form
                 document.getElementById('update-agent-id').value = '';
                 document.getElementById('update-query').value = '';
@@ -324,7 +324,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.displayTools(result.tools);
                 this.updateToolsSummary(result.tools);
@@ -374,7 +374,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.displayBackgroundAgents(result.agents);
             } else {
@@ -424,8 +424,8 @@ class OmniAgentInterface {
             const schedule = agent.schedule;
             let humanInterval = '';
             if (typeof interval === 'number' && !isNaN(interval) && interval > 0) {
-                if (interval % 3600 === 0) humanInterval = `${interval/3600}h`;
-                else if (interval % 60 === 0) humanInterval = `${interval/60}m`;
+                if (interval % 3600 === 0) humanInterval = `${interval / 3600}h`;
+                else if (interval % 60 === 0) humanInterval = `${interval / 60}m`;
                 else humanInterval = `${interval}s`;
             }
             const scheduleLine = (schedule || humanInterval) ? `<small>Schedule: ${schedule || ''} ${humanInterval ? `(${humanInterval})` : ''}</small>` : '';
@@ -467,7 +467,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.showNotification(`Agent ${agentId} started successfully!`, 'success');
                 this.loadBackgroundAgents(); // Refresh the list
@@ -499,7 +499,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.showNotification(`Agent ${agentId} stopped successfully!`, 'success');
                 this.loadBackgroundAgents(); // Refresh the list
@@ -568,7 +568,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.showNotification(`Agent ${agentId} removed successfully!`, 'success');
                 this.loadBackgroundAgents(); // Refresh the list
@@ -591,7 +591,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.displayEvents(result.events || []);
             } else {
@@ -632,7 +632,7 @@ class OmniAgentInterface {
                     div.innerHTML = `<h4>${type}${agent}</h4><p>${body}</p><small>${ts}</small>`;
                     eventsContainer.prepend(div);
                 }
-            } catch {}
+            } catch { }
         };
         source.onerror = () => { source.close(); };
         this._eventSource = source;
@@ -690,7 +690,7 @@ class OmniAgentInterface {
             }
 
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 this.displaySystemInfo(result.info);
                 this.updateQuickStats(result.info);
@@ -763,29 +763,29 @@ class OmniAgentInterface {
     connectWebSocket() {
         try {
             this.websocket = new WebSocket(`ws://${window.location.host}/ws`);
-            
+
             this.websocket.onopen = () => {
                 console.log('WebSocket connected');
             };
-            
+
             this.websocket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'ping') {
                         // Handle ping/pong for connection health
-                        this.websocket.send(JSON.stringify({type: 'pong', timestamp: new Date().toISOString()}));
+                        this.websocket.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
                     }
                 } catch (e) {
                     console.error('Error parsing WebSocket message:', e);
                 }
             };
-            
+
             this.websocket.onclose = () => {
                 console.log('WebSocket disconnected');
                 // Reconnect after 5 seconds
                 setTimeout(() => this.connectWebSocket(), 5000);
             };
-            
+
             this.websocket.onerror = (error) => {
                 console.error('WebSocket error:', error);
             };
@@ -799,9 +799,9 @@ class OmniAgentInterface {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
-        
+
         document.body.appendChild(notification);
-        
+
         // Remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
@@ -813,5 +813,5 @@ class OmniAgentInterface {
 
 // Initialize the interface when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.omniInterface = new OmniAgentInterface();
+    window.omniInterface = new OmniCoreAgentInterface();
 });

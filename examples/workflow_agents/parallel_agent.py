@@ -1,5 +1,5 @@
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     ToolRegistry,
@@ -37,7 +37,7 @@ GENERAL_MCP_TOOLS = [
 ]
 
 # Researcher 1: Renewable Energy
-renewable_energy_agent = OmniAgent(
+renewable_energy_agent = OmniCoreAgent(
     name="RenewableEnergyResearcher",
     system_instruction="""
     You are an AI Research Assistant specializing in energy.
@@ -56,7 +56,7 @@ renewable_energy_agent = OmniAgent(
 )
 
 # Researcher 2: Electric Vehicles
-ev_agent = OmniAgent(
+ev_agent = OmniCoreAgent(
     name="EVResearcher",
     system_instruction="""
     You are an AI Research Assistant specializing in transportation.
@@ -75,7 +75,7 @@ ev_agent = OmniAgent(
 )
 
 # Researcher 3: Carbon Capture
-carbon_capture_agent = OmniAgent(
+carbon_capture_agent = OmniCoreAgent(
     name="CarbonCaptureResearcher",
     system_instruction="""
     You are an AI Research Assistant specializing in climate solutions.

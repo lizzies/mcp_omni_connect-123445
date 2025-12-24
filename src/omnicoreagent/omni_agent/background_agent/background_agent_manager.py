@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 from omnicoreagent.omni_agent.background_agent.background_agents import (
-    BackgroundOmniAgent,
+    BackgroundOmniCoreAgent,
 )
 from omnicoreagent.omni_agent.background_agent.task_registry import TaskRegistry
 from omnicoreagent.omni_agent.background_agent.scheduler_backend import (
@@ -40,7 +40,7 @@ class BackgroundAgentManager:
         self.task_registry = TaskRegistry()
         self.scheduler = APSchedulerBackend()
 
-        self.agents: Dict[str, BackgroundOmniAgent] = {}
+        self.agents: Dict[str, BackgroundOmniCoreAgent] = {}
         self.agent_configs: Dict[str, Dict[str, Any]] = {}
 
         self.is_running = False
@@ -73,7 +73,7 @@ class BackgroundAgentManager:
             self.task_registry.register(agent_id, task_config)
             logger.info(f"Registered task in TaskRegistry for agent {agent_id}")
 
-            agent = BackgroundOmniAgent(
+            agent = BackgroundOmniCoreAgent(
                 config=config,
                 memory_router=self.memory_router,
                 event_router=self.event_router,
@@ -173,7 +173,7 @@ class BackgroundAgentManager:
         """List all registered task agent IDs."""
         return self.task_registry.get_agent_ids()
 
-    async def _schedule_agent(self, agent_id: str, agent: BackgroundOmniAgent):
+    async def _schedule_agent(self, agent_id: str, agent: BackgroundOmniCoreAgent):
         """Schedule an agent for execution."""
         try:
             self.scheduler.schedule_task(
@@ -413,7 +413,7 @@ class BackgroundAgentManager:
             "shared_memory_store": self.memory_router.get_memory_store_info(),
         }
 
-    def get_agent(self, agent_id: str) -> Optional[BackgroundOmniAgent]:
+    def get_agent(self, agent_id: str) -> Optional[BackgroundOmniCoreAgent]:
         """Get a specific agent instance."""
         return self.agents.get(agent_id)
 

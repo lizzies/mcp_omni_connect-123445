@@ -10,7 +10,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     ToolRegistry,
@@ -427,7 +427,7 @@ Time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     async def initialize_agent(self):
         """Initialize the production support agent"""
 
-        support_agent = OmniAgent(
+        support_agent = OmniCoreAgent(
             name="ProductionSupportAgent",
             system_instruction="""You are a professional customer support agent in a production environment. 
 

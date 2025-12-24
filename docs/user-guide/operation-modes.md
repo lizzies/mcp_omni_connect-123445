@@ -1,6 +1,6 @@
 # Operation Modes
 
-MCPOmni Connect offers three distinct operation modes, each designed for different levels of automation and user involvement.
+OmniCoreAgent offers three distinct operation modes, each designed for different levels of automation and user involvement.
 
 ## Mode Overview
 
@@ -45,7 +45,7 @@ Found 5 items:
 
 ### When to Use Chat Mode
 
-- **Learning**: Understanding how MCPOmni Connect works
+- **Learning**: Understanding how OmniCoreAgent works
 - **Sensitive Operations**: Working with important files or systems
 - **Exploration**: Discovering what tools are available
 - **Debugging**: Step-by-step problem diagnosis
@@ -199,7 +199,7 @@ Now operating in ORCHESTRATOR mode. I will coordinate complex multi-step tasks.
 ### Use Case Examples
 
 === "Chat Mode"
-    - Learning MCPOmni Connect
+    - Learning OmniCoreAgent
     - Exploring new MCP servers
     - Debugging configuration issues
     - Working with sensitive data

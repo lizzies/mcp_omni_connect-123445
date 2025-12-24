@@ -1,4 +1,4 @@
-from omnicoreagent.omni_agent.agent import OmniAgent
+from omnicoreagent.omni_agent.agent import OmniCoreAgent
 from omnicoreagent.core.utils import logger
 from typing import List, Optional, Dict
 import asyncio
@@ -10,7 +10,7 @@ class RouterAgent:
     """
     Routes a task to the most suitable sub-agent using XML-based LLM decisions.
     - Accepts developer model_config, agent_config, memory_router, event_router.
-    - Builds an internal RouterAgent OmniAgent with those configs.
+    - Builds an internal RouterAgent OmniCoreAgent with those configs.
     - Eagerly connects MCP servers at startup.
     - Routes user task and executes chosen agent.
     """
@@ -19,7 +19,7 @@ class RouterAgent:
 
     def __init__(
         self,
-        sub_agents: List[OmniAgent],
+        sub_agents: List[OmniCoreAgent],
         model_config: dict,
         agent_config: dict,
         memory_router=None,
@@ -61,7 +61,7 @@ class RouterAgent:
 
         if not self.router_agent:
             system_instruction = self._build_router_system_instruction()
-            self.router_agent = OmniAgent(
+            self.router_agent = OmniCoreAgent(
                 name="RouterAgent",
                 system_instruction=system_instruction,
                 model_config=self.model_config,
@@ -200,7 +200,7 @@ class RouterAgent:
         return await self._run_single_agent(chosen_agent, query, session_id)
 
     async def _run_single_agent(
-        self, agent: OmniAgent, query: str, session_id: str
+        self, agent: OmniCoreAgent, query: str, session_id: str
     ) -> dict:
         """Executes the selected agent with retries, production ready."""
         agent_name = getattr(agent, "name", "UnknownAgent")
@@ -238,7 +238,7 @@ class RouterAgent:
         return final_output
 
     async def _route_with_llm(self, task: str, session_id: str) -> str:
-        """Use RouterCAgent OmniAgent to pick the agent via XML decision."""
+        """Use RouterCAgent OmniCoreAgent to pick the agent via XML decision."""
         response = await self.router_agent.run(query=task, session_id=session_id)
         return response.get("response", "")
 

@@ -13,7 +13,7 @@ from omnicoreagent.core.system_prompts import (
     agent_skills_additional_prompt,
 )
 import inspect
-from omnicoreagent.core.agents.token_usage import (
+from omnicoreagent.core.token_usage import (
     Usage,
     UsageLimitExceeded,
     UsageLimits,
@@ -25,7 +25,7 @@ from omnicoreagent.core.tools.tools_handler import (
     MCPToolHandler,
     ToolExecutor,
 )
-from omnicoreagent.core.agents.types import (
+from omnicoreagent.core.types import (
     AgentState,
     Message,
     ParsedResponse,

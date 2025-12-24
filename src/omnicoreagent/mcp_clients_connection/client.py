@@ -165,7 +165,6 @@ class Configuration:
         """Initialize configuration with environment variables."""
         self.load_env()
         self.llm_api_key = decouple_config("LLM_API_KEY", default=None)
-        self.embedding_api_key = decouple_config("EMBEDDING_API_KEY", default=None)
 
         if not self.llm_api_key:
             raise ValueError("LLM_API_KEY not found in environment variables")
@@ -302,7 +301,7 @@ class MCPClient:
                     webbrowser.open(authorization_url)
 
                 client_metadata_dict = {
-                    "client_name": "mcpomni_connect",
+                    "client_name": "omnicoreagent",
                     "redirect_uris": [f"http://localhost:{callback_port}/callback"],
                     "grant_types": ["authorization_code", "refresh_token"],
                     "response_types": ["code"],

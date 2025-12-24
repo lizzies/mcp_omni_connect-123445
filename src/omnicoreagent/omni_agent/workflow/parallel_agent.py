@@ -1,4 +1,4 @@
-from omnicoreagent.omni_agent.agent import OmniAgent
+from omnicoreagent.omni_agent.agent import OmniCoreAgent
 from typing import List, Optional, Dict
 from omnicoreagent.core.utils import logger
 import asyncio
@@ -6,11 +6,11 @@ import uuid
 
 
 class ParallelAgent:
-    """Runs a list of OmniAgents in parallel, each with its own optional task, sharing a session ID if provided."""
+    """Runs a list of OmniCoreAgents in parallel, each with its own optional task, sharing a session ID if provided."""
 
     DEFAULT_TASK = "Please follow your system instructions and process accordingly."
 
-    def __init__(self, sub_agents: List[OmniAgent], max_retries: int = 3):
+    def __init__(self, sub_agents: List[OmniCoreAgent], max_retries: int = 3):
         if not sub_agents:
             raise ValueError("ParallelAgent requires at least one sub-agent")
         self.sub_agents = sub_agents
@@ -58,7 +58,7 @@ class ParallelAgent:
         return {res["agent_name"]: res for res in results}
 
     async def _run_single_agent(
-        self, agent_service: OmniAgent, query: str, session_id: str, idx: int
+        self, agent_service: OmniCoreAgent, query: str, session_id: str, idx: int
     ) -> dict:
         """Runs an agent with retry logic and MCP management."""
         agent_name = getattr(agent_service, "name", f"Agent_{idx}")

@@ -8,7 +8,7 @@ import os
 import asyncio
 from datetime import datetime
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     BackgroundAgentManager,
@@ -32,7 +32,7 @@ def create_support_ticket(
     import json
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.omni_core_agent/support.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         conn = sqlite3.connect(db_path)
@@ -74,7 +74,7 @@ def get_open_tickets(limit: int = 10) -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.omni_core_agent/support.db")
 
         if not os.path.exists(db_path):
             return "No support database found. No open tickets."
@@ -125,7 +125,7 @@ def respond_to_ticket(
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.OmniCoreAgent/support.db")
 
         if not os.path.exists(db_path):
             return "Support database not found."
@@ -178,7 +178,7 @@ def categorize_ticket(ticket_id: int, category: str) -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.omni_core_agent/support.db")
 
         if not os.path.exists(db_path):
             return "Support database not found."
@@ -210,7 +210,7 @@ def escalate_ticket(ticket_id: int, reason: str) -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.omni_core_agent/support.db")
 
         if not os.path.exists(db_path):
             return "Support database not found."
@@ -247,7 +247,7 @@ def get_ticket_stats() -> str:
     import sqlite3
 
     try:
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.omni_core_agent/support.db")
 
         if not os.path.exists(db_path):
             return "No support database found."
@@ -339,7 +339,7 @@ Support Team""",
     try:
         import sqlite3
 
-        db_path = os.path.expanduser("~/.omniagent/support.db")
+        db_path = os.path.expanduser("~/.omni_core_agent/support.db")
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
@@ -549,7 +549,7 @@ async def setup_and_run_agent():
     print("  • Escalate complex issues to human support")
     print("  • Track all interactions in the database")
     print()
-    print("Database location: ~/.omniagent/support.db")
+    print("Database location: ~/.OmniCoreAgent/support.db")
     print()
     print("To monitor the agent:")
     print("  • Check logs in real-time")

@@ -2,7 +2,7 @@ from collections.abc import Callable
 from typing import Any
 
 from omnicoreagent.core.agents.base import BaseReactAgent
-from omnicoreagent.core.agents.types import AgentConfig
+from omnicoreagent.core.types import AgentConfig
 
 
 class ReactAgent(BaseReactAgent):

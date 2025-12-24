@@ -1,15 +1,15 @@
-from omnicoreagent.omni_agent.agent import OmniAgent
+from omnicoreagent.omni_agent.agent import OmniCoreAgent
 from typing import List, Optional
 from omnicoreagent.core.utils import logger
 import uuid
 
 
 class SequentialAgent:
-    """Runs a list of OmniAgents sequentially, passing output from one to the next with retry support."""
+    """Runs a list of OmniCoreAgents sequentially, passing output from one to the next with retry support."""
 
     DEFAULT_TASK = "Please follow your system instructions and process accordingly."
 
-    def __init__(self, sub_agents: List[OmniAgent], max_retries: int = 3):
+    def __init__(self, sub_agents: List[OmniCoreAgent], max_retries: int = 3):
         if not sub_agents:
             raise ValueError("SequentialAgent requires at least one sub-agent")
         self.sub_agents = sub_agents

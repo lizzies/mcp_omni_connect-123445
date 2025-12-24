@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from omnicoreagent.core.agents.react_agent import ReactAgent
-from omnicoreagent.core.agents.types import AgentConfig as ReactAgentConfig
+from omnicoreagent.core.types import AgentConfig as ReactAgentConfig
 from omnicoreagent.mcp_clients_connection.client import Configuration, MCPClient
 from omnicoreagent.core.llm import LLMConnection
 from omnicoreagent.core.memory_store.memory_router import MemoryRouter
@@ -13,14 +13,14 @@ from omnicoreagent.omni_agent.config import (
     MCPToolConfig,
     AgentConfig,
 )
-from omnicoreagent.omni_agent.prompts.prompt_builder import OmniAgentPromptBuilder
+from omnicoreagent.omni_agent.prompts.prompt_builder import OmniCoreAgentPromptBuilder
 from omnicoreagent.omni_agent.prompts.react_suffix import SYSTEM_SUFFIX
 from omnicoreagent.core.events.event_router import EventRouter
 from omnicoreagent.core.tools.advance_tools.advanced_tools_use import AdvanceToolsUse
 from omnicoreagent.core.utils import logger
 
 
-class OmniAgent:
+class OmniCoreAgent:
     """
     A simple, user-friendly interface for creating and using MCP agents.
 
@@ -42,7 +42,7 @@ class OmniAgent:
         debug: bool = False,
     ):
         """
-        Initialize the OmniAgent with user-friendly configuration.
+        Initialize the OmniCoreAgent with user-friendly configuration.
 
         Args:
             name: Name of the agent
@@ -71,7 +71,7 @@ class OmniAgent:
         )
         self.event_router = event_router or EventRouter(event_store_type="in_memory")
         self.config_transformer = config_transformer
-        self.prompt_builder = OmniAgentPromptBuilder(SYSTEM_SUFFIX)
+        self.prompt_builder = OmniCoreAgentPromptBuilder(SYSTEM_SUFFIX)
         self.agent = None
         self.mcp_client = None
         self.llm_connection = None
@@ -118,7 +118,7 @@ class OmniAgent:
 
     def _save_config_hidden(self, config: Dict[str, Any]):
         """Save config to hidden location with agent-specific filename"""
-        hidden_dir = Path(".omniagent_config")
+        hidden_dir = Path(".omnicoreagent_config")
         hidden_dir.mkdir(exist_ok=True)
 
         safe_agent_name = (
@@ -165,7 +165,7 @@ class OmniAgent:
 
     def generate_session_id(self) -> str:
         """Generate a new session ID for the session"""
-        return f"omni_agent_{self.name}_{uuid.uuid4().hex[:8]}"
+        return f"omni_core_agent_{self.name}_{uuid.uuid4().hex[:8]}"
 
     async def connect_mcp_servers(self):
         """Connect to MCP servers if MCP tools are configured"""
@@ -313,7 +313,7 @@ class OmniAgent:
             if hasattr(self, "_config_file_path") and self._config_file_path.exists():
                 self._config_file_path.unlink()
 
-            hidden_dir = Path(".omniagent_config")
+            hidden_dir = Path(".omnicoreagent_config")
             if hidden_dir.exists() and not list(hidden_dir.glob("*.json")):
                 hidden_dir.rmdir()
         except Exception:

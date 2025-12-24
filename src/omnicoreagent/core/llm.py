@@ -166,6 +166,8 @@ class LLMConnection:
                 "openai": f"openai/{model}",
                 "anthropic": f"anthropic/{model}",
                 "groq": f"groq/{model}",
+                "openrouter": f"openrouter/{model}",
+                "deepseek": f"deepseek/{model}",
                 "gemini": f"gemini/{model}",
                 "azure": f"azure/{model}",
                 "ollama": f"ollama/{model}",

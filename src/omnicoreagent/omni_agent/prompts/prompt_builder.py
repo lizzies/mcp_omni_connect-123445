@@ -1,4 +1,4 @@
-class OmniAgentPromptBuilder:
+class OmniCoreAgentPromptBuilder:
     def __init__(self, system_suffix: str):
         self.system_suffix = system_suffix.strip()
 

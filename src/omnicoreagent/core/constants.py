@@ -1,14 +1,15 @@
 from datetime import datetime, timezone
 
-TOOL_ACCEPTING_PROVIDERS = {
-    "groq",
-    "openai",
-    "openrouter",
-    "gemini",
-    "deepseek",
-    "azureopenai",
-    "anthropic",
-    "mistral",
+SUPPORTED_MODELS_PROVIDERS = {
+    "openai": "openai",
+    "anthropic": "anthropic",
+    "groq": "groq",
+    "ollama": "ollama",
+    "azure": "azure",
+    "gemini": "gemini",
+    "deepseek": "deepseek",
+    "mistral": "mistral",
+    "openrouter": "openrouter",
 }
 
 AGENTS_REGISTRY = {}

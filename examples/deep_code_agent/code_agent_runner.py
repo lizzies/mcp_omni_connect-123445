@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 
 from tools.coding_tools import register_coding_tools
 from system_prompt import get_deep_coding_system_prompt
-from omnicoreagent import OmniAgent, ToolRegistry, MemoryRouter, EventRouter
+from omnicoreagent import OmniCoreAgent, ToolRegistry, MemoryRouter, EventRouter
 from observability_globals import metrics, audit, rate_limiter, CONFIG, log
 from sandbox.sandbox_executor import SandboxExecutor
 
@@ -16,7 +16,7 @@ class DeepCodingAgentRunner:
         self.cfg = CONFIG
         # self.session_id = str(uuid.uuid4())
         self.session_id = "abiorh001"
-        self.agent: Optional[OmniAgent] = None
+        self.agent: Optional[OmniCoreAgent] = None
         self.memory_router: Optional[MemoryRouter] = None
         self.event_router: Optional[EventRouter] = None
         self.connected = False
@@ -71,7 +71,7 @@ class DeepCodingAgentRunner:
             "memory_tool_backend": self.cfg.agent.memory_tool_backend,
         }
 
-        self.agent = OmniAgent(
+        self.agent = OmniCoreAgent(
             name=self.cfg.agent.name,
             system_instruction=get_deep_coding_system_prompt(
                 session_id=self.session_id

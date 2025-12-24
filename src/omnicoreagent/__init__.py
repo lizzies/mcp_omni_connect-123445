@@ -12,9 +12,9 @@ from .core.database import DatabaseMessageStore
 from .core.tools import ToolRegistry, Tool
 from .core.utils import logger
 
-from .omni_agent.agent import OmniAgent
+from .omni_agent.agent import OmniCoreAgent
 from .omni_agent.background_agent import (
-    BackgroundOmniAgent,
+    BackgroundOmniCoreAgent,
     BackgroundAgentManager,
     TaskRegistry,
     APSchedulerBackend,
@@ -36,8 +36,8 @@ __all__ = [
     "ToolRegistry",
     "Tool",
     "logger",
-    "OmniAgent",
-    "BackgroundOmniAgent",
+    "OmniCoreAgent",
+    "BackgroundOmniCoreAgent",
     "BackgroundAgentManager",
     "TaskRegistry",
     "APSchedulerBackend",

@@ -39,7 +39,7 @@ class DevopsConfig:
 @dataclass
 class AgentConfig:
     """
-    OmniAgent configuration.
+    OmniCoreAgent configuration.
 
     Defines runtime behavior, limits, memory strategy, and tool retrieval settings.
     """

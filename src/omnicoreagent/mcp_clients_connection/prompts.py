@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from omnicoreagent.core.agents.token_usage import UsageLimits, usage
+from omnicoreagent.core.token_usage import UsageLimits, usage
 from omnicoreagent.core.utils import logger
 
 

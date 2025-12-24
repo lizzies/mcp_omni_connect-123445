@@ -1,5 +1,5 @@
 from omnicoreagent import (
-    OmniAgent,
+    OmniCoreAgent,
     MemoryRouter,
     EventRouter,
     SequentialAgent,
@@ -32,7 +32,7 @@ def build_tool_registry_system_monitor_agent() -> ToolRegistry:
     return registry
 
 
-system_monitor_agent = OmniAgent(
+system_monitor_agent = OmniCoreAgent(
     name="SystemMonitorAgent",
     system_instruction=(
         "You are a System Monitor Agent. Your responsibility is to retrieve the current "
@@ -68,7 +68,7 @@ def build_tool_registry_text_formatter_agent() -> ToolRegistry:
     return registry
 
 
-text_formatter_agent = OmniAgent(
+text_formatter_agent = OmniCoreAgent(
     name="TextFormatterAgent",
     system_instruction=(
         "You are a Text Formatting Agent. Your task is to take the input string "
@@ -95,7 +95,7 @@ FILE_SYSTEM_MCP_TOOLS = [
         ],
     },
 ]
-file_system_agent = OmniAgent(
+file_system_agent = OmniCoreAgent(
     name="FileSystemAgent",
     system_instruction=(
         """You are a File System Agent. Your task is to append the input string to 'system_status.md' in /home/abiorh/ai.

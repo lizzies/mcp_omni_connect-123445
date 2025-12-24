@@ -1,4 +1,4 @@
-from omnicoreagent import OmniAgent, ToolRegistry
+from omnicoreagent import OmniCoreAgent, ToolRegistry
 from typing import override
 
 tools = ToolRegistry()
@@ -22,7 +22,7 @@ def get_weather(city: str) -> str:
     return f"Weather in {city}: Sunny, 25°C"
 
 
-weather_agent = OmniAgent(
+weather_agent = OmniCoreAgent(
     name="weather_agent",
     system_instruction="You help with weather information.",
     model_config={
@@ -34,7 +34,7 @@ weather_agent = OmniAgent(
     local_tools=tools,
 )
 
-filesystem_agent = OmniAgent(
+filesystem_agent = OmniCoreAgent(
     name="filesystem_agent",
     system_instruction="""
 You are a specialized Filesystem Operations Agent with expert knowledge in file and directory management.
@@ -148,7 +148,7 @@ and providing clear, helpful feedback.
 )
 
 
-class ResearchAgent(OmniAgent):
+class ResearchAgent(OmniCoreAgent):
     def __init__(self, name, system_instruction, model_config, local_tools):
         self.name = name
         self.system_instruction = system_instruction
