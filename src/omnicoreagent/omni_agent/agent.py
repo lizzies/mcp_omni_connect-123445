@@ -264,6 +264,8 @@ class OmniCoreAgent:
         """
         average_time = (
             self._cumulative_usage.total_time / self._cumulative_usage.requests
+            if self._cumulative_usage.requests > 0
+            else 0
         )
         return {
             "total_requests": self._cumulative_usage.requests,
@@ -378,3 +380,19 @@ class OmniCoreAgent:
         """Clean up MCP servers without removing the agent and the config"""
         if self.mcp_client:
             await self.mcp_client.cleanup()
+
+class OmniAgent(OmniCoreAgent):
+    """
+    Deprecated: Use OmniCoreAgent instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        import warnings
+
+        warnings.warn(
+            "OmniAgent is deprecated and has been renamed to OmniCoreAgent. "
+            "Please update your imports and class usage.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)

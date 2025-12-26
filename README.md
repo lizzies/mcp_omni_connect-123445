@@ -2,7 +2,12 @@
   <img src="assets/IMG_5292.jpeg" alt="OmniCoreAgent Logo" width="250"/>
 </p>
 
+
 <h1 align="center">🚀 OmniCoreAgent</h1>
+
+> [!IMPORTANT]
+> **OmniAgent has been renamed to OmniCoreAgent.**
+> To avoid breaking changes, `OmniAgent` is still available as a deprecated alias, but please update your imports and class usage to `OmniCoreAgent` as soon as possible.
 
 <p align="center">
   <strong>Production-Ready AI Agent Framework</strong><br>
